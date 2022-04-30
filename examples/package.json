@@ -1,0 +1,17 @@
+{
+	"name": "examples",
+	"version": "0.0.0",
+	"description": "> TODO: description",
+	"author": "Chaos Lee <chaos2lee@qq.com>",
+	"homepage": "https://github.com/produck/koa-forker/tree/main/packages/examples#readme",
+	"license": "MIT",
+	"main": "index.js",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/produck/koa-forker.git"
+	},
+	"bugs": {
+		"url": "https://github.com/produck/koa-forker/issues"
+	}
+}

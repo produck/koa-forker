@@ -1,0 +1,26 @@
+{
+	"name": "@produck/koa-forker",
+	"description": "A new koa router",
+	"scripts": {
+		"deps:install": "lerna bootstrap",
+		"deps:clean": "lerna clean -y"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/produck/koa-forker.git"
+	},
+	"keywords": [
+		"koa",
+		"router"
+	],
+	"author": "ChaosLee",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/produck/koa-forker/issues"
+	},
+	"homepage": "https://github.com/produck/koa-forker#readme",
+	"devDependencies": {
+		"eslint": "^8.14.0",
+		"lerna": "^4.0.0"
+	}
+}

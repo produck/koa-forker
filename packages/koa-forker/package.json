@@ -1,0 +1,29 @@
+{
+	"name": "@produck/koa-forker",
+	"version": "0.0.0",
+	"description": "A koa router",
+	"keywords": [
+		"koa",
+		"router"
+	],
+	"author": "Chaos Lee <chaos2lee@qq.com>",
+	"homepage": "https://github.com/produck/koa-forker/tree/main/packages/koa-forker#readme",
+	"license": "MIT",
+	"main": "index.js",
+	"publishConfig": {
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/produck/koa-forker.git"
+	},
+	"scripts": {
+		"test": "echo \"Error: run tests from root\" && exit 1"
+	},
+	"bugs": {
+		"url": "https://github.com/produck/koa-forker/issues"
+	},
+	"devDependencies": {
+		"koa": "^2.13.4"
+	}
+}
