@@ -6,6 +6,7 @@
 		"koa",
 		"router"
 	],
+	"type": "commonjs",
 	"author": "Chaos Lee <chaos2lee@qq.com>",
 	"homepage": "https://github.com/produck/koa-forker/tree/main/packages/koa-forker#readme",
 	"license": "MIT",
@@ -24,6 +25,10 @@
 		"url": "https://github.com/produck/koa-forker/issues"
 	},
 	"devDependencies": {
-		"koa": "^2.13.4"
+		"koa": "^2.13.4",
+		"mocha": "^9.2.2"
+	},
+	"dependencies": {
+		"koa-compose": "^4.1.0"
 	}
 }
