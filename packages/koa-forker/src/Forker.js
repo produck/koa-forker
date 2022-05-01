@@ -12,7 +12,13 @@ module.exports = class Forker {
 		this.rootRouter = new Router({
 			name: 'Forker.Root',
 			children: [...finalOptions.children]
-		}, finalOptions.features);
+		}, this);
+
+		Object.freeze(this);
+	}
+
+	Router(options) {
+		return new Router(options, this);
 	}
 
 	Middleware() {

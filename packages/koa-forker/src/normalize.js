@@ -1,5 +1,6 @@
 const http = require('http');
 
+const ALL_METHODS = [...http.METHODS];
 const DEFAULT_NAME = '<anonymous>';
 const DEFAULT_TEST = () => true;
 const DEFAULT_RESOLVER = raw => raw;
@@ -10,7 +11,7 @@ function normalizeRouterOptions(_options = {}) {
 		name: DEFAULT_NAME,
 		test: DEFAULT_TEST,
 		resolver: DEFAULT_RESOLVER,
-		methods: http.METHODS,
+		methods: ALL_METHODS,
 		middlewares: [],
 		childList: []
 	};
