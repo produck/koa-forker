@@ -63,5 +63,13 @@ function normalizeForkerOptions(_options) {
 	return options;
 }
 
+function normalizePathOptions(_options) {
+	const options = {
+		name: DEFAULT_NAME,
+		paths: ''
+	};
+}
+
 exports.Router = normalizeRouterOptions;
 exports.Forker = normalizeForkerOptions;
+exports.Path = normalizePathOptions;

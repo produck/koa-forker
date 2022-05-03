@@ -29,6 +29,7 @@
 		"mocha": "^9.2.2"
 	},
 	"dependencies": {
+		"@produck/charon": "0.3.0",
 		"koa-compose": "^4.1.0"
 	}
 }
