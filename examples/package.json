@@ -13,5 +13,9 @@
 	},
 	"bugs": {
 		"url": "https://github.com/produck/koa-forker/issues"
+	},
+	"dependencies": {
+		"@produck/koa-forker": "^0.0.0",
+		"koa": "^2.13.4"
 	}
 }

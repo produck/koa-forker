@@ -10,7 +10,7 @@ module.exports = class Forker {
 		this.prefix = finalOptions.prefix;
 
 		this.rootRouter = new Router({
-			name: 'Forker.Root',
+			name: 'ForkerRoot',
 			children: [...finalOptions.children]
 		}, this);
 
@@ -22,22 +22,26 @@ module.exports = class Forker {
 	}
 
 	Middleware() {
-		const composed = this.rootRouter.compile();
-		const prefix = this.prefix;
+		// leaf NodeRoute -> ComposedRouteMiddleware
+		const composedRouteSet = new Map();
+
+		const match = nodeQueue => {
+
+		};
+
+		//TODO compile composed routes
 
 		return function forkerRootRouteMiddleware(ctx, next) {
 			const nodeQueue = ctx.path.split(SEPARATOR_REG).slice(1);
+			const leafRoute = match(nodeQueue);
 
-			if (prefix !== '' && nodeQueue.shift() !== prefix) {
-				return next();
+			if (leafRoute) {
+				ctx.params = {};
+
+				return composedRouteSet.get(leafRoute)(ctx, next);
+			} else {
+				return ctx.throw(404);
 			}
-
-			Object.assign(ctx, {
-				params: {},
-				nodeQueue
-			});
-
-			return composed(ctx, next);
 		};
 	}
 };

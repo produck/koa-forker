@@ -9,7 +9,7 @@ function MethodMap(list) {
 
 class Router {
 	constructor(options, forker) {
-		const { name, test, resolver, methods, middlewares, children } = options;
+		const { name, test, resolver, methods, flow } = options;
 
 		this.forker = forker;
 
@@ -17,6 +17,7 @@ class Router {
 		this.test = test;
 		this.methods = MethodMap(methods);
 		this.resolver = resolver;
+
 		this.middlewares = middlewares;
 
 		this.childRouterList = [];
@@ -30,6 +31,10 @@ class Router {
 
 	get isLeaf() {
 		return this.childRouterList.length === 0;
+	}
+
+	test(pathNodeRaw, ctx) {
+		return ctx.method in this.methods && this.test(pathNodeRaw, ctx);
 	}
 
 	use(...middlewares) {
@@ -60,31 +65,33 @@ class Router {
 
 	compile() {
 		const finalName = `${this.name}RouteMiddleware`;
-		const composed = compose(this.middlewares);
-		const childRouteList = this.childRouterList.map(router => router.compile());
+		const resolver = this.resolver;
+		const middlewareMap = {};
+
+		for (const name in this.methods) {
+			middlewareMap[name] = compose(this.middlewares.concat(this.methods[name]));
+		}
 
 		/**
 		 * Naming middleware function name dynamicly
 		 */
 		const assembly = {
-			[finalName](ctx, next) {
-				const node = ctx.pathNodeQueue.shift();
+			async [finalName](ctx, next) {
+				const { pathNodeQueue } = ctx;
+				const node = pathNodeQueue.shift();
+				const middleware = middlewareMap[ctx.method];
 
-				for (const childRoute of childRouteList) {
-					if (childRoute.test(node, ctx.method, ctx)) {
-						childRoute.resolver(ctx.params, node);
-
-						return composed(ctx, next);
-					}
+				if (middleware) {
+					resolver(ctx.params, node);
+					await middleware(ctx, next);
+				} else {
+					ctx.throw(405);
 				}
 			}
 		};
 
-		return {
-			middleware: assembly[finalName],
-			resolver: this.resolver,
-			test: (node, method, ctx) => method in this.methods && this.test(node, ctx)
-		};
+		// Node route
+		return assembly[finalName];
 	}
 }
 
