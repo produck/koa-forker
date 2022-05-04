@@ -1,5 +1,3 @@
-const { Type, Lang } = require('@produck/charon');
-
 const Normalize = require('./normalize');
 const METHODS = require('./methods');
 const RouterContext = require('./Context');
@@ -7,8 +5,9 @@ const RouterContext = require('./Context');
 const ref = new WeakMap();
 const _ = proxy => ref.get(proxy);
 
-function isPathOptions() {
+function isPathOptions(any) {
 	// array, object, string, regexp
+	return typeof any === 'string';
 }
 
 function normalizeArgs(args) {
@@ -28,6 +27,10 @@ class RouterProxy {
 		return _(this).compile().abstract;
 	}
 
+	get _() {
+		return _(this);
+	}
+
 	param(param, ...paramMiddlewares) {
 		_(this).param(param, paramMiddlewares);
 
@@ -41,15 +44,11 @@ class RouterProxy {
 	use(...args) {
 		const { pathOptions, sequence } = normalizeArgs(args);
 
-		for (const index in sequence) {
-			const member = sequence[index];
+		const _sequence = sequence.map(member => {
+			return typeof member === 'function' ? member : _(member);
+		});
 
-			if (Type.Not.Function(member) || !Lang.instanceOf(member, RouterProxy)) {
-				Lang.Throw.TypeError(`Invalid sequence[${index}], a Function or Router expected.`);
-			}
-		}
-
-		_(this).use(pathOptions, sequence);
+		_(this).use(pathOptions, _sequence);
 
 		return this;
 	}

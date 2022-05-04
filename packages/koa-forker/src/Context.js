@@ -1,6 +1,6 @@
-const { Object } = require('@produck/charon');
 const Component = require('./Component');
 const mark = require('./symbol');
+const Route = require('./Route');
 
 class Router {
 	constructor(options) {
@@ -13,14 +13,20 @@ class Router {
 		this.paramQueueMap = {};
 	}
 
+	*components() {
+		for (const component of this.componentList) {
+			yield component;
+		}
+	}
+
 	use(pathOptions, sequence) {
-		this.componentList.push(new Component.Passage(pathOptions, sequence));
+		this.componentList.push(new Component.Passage({ pathOptions, sequence }));
 
 		return this;
 	}
 
 	method(methods, pathOptions, sequence) {
-		this.componentList.push(new Component.Method(pathOptions, methods, sequence));
+		this.componentList.push(new Component.Method({ methods, pathOptions, sequence }));
 	}
 
 	param(paramName, paramMiddlewareList) {
@@ -31,13 +37,9 @@ class Router {
 		this.paramQueueMap[paramName].push(...paramMiddlewareList);
 	}
 
-	compile() {
-
-	}
-
 	Middleware(compilerOptions) {
 		const finalName = `${this.name}RouteMiddleware`;
-		const route = this.compile(compilerOptions);
+		const route = new Route(compilerOptions).compile(this);
 
 		/**
 		 * Naming middleware function name dynamicly

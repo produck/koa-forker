@@ -1,6 +1,5 @@
 class Component {
-	constructor(name, sequence, path = null) {
-		this.name = name;
+	constructor({ sequence, path = null }) {
 		this.path = path;
 		this.sequence = sequence;
 	}
@@ -9,8 +8,8 @@ class Component {
 exports.Passage = class PassageComponent extends Component {};
 
 exports.Method = class MethodComponent extends Component {
-	constructor(name, sequence, path, methods) {
-		super(name, sequence, path);
+	constructor({ sequence, path, methods }) {
+		super({ sequence, path });
 
 		this.methods = methods;
 	}
