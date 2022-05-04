@@ -5,7 +5,7 @@ class Component {
 	}
 }
 
-exports.Passage = class PassageComponent extends Component {};
+exports.Use = class UseComponent extends Component {};
 
 exports.Method = class MethodComponent extends Component {
 	constructor({ sequence, path, methods }) {

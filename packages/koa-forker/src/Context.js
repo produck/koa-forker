@@ -20,7 +20,7 @@ class Router {
 	}
 
 	use(pathOptions, sequence) {
-		this.componentList.push(new Component.Passage({ pathOptions, sequence }));
+		this.componentList.push(new Component.Use({ pathOptions, sequence }));
 
 		return this;
 	}

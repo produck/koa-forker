@@ -23,7 +23,7 @@
 * Router.register(): CAN be middleware functions
 
 * All Components --compile()--> Node()
-* Final APIs features identified by MethodNode
+* Final APIs features identified by MethodNode(1st)
 
 ```js
 ['a', 'b', { c: /\d+/ }]

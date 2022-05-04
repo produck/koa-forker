@@ -3,7 +3,13 @@ const KoaRouter = require('@koa/router');
 
 const app = new Koa();
 const router = new KoaRouter();
+const childRouter = new KoaRouter();
 
+childRouter.get('/', function (ctx, next) {
+	console.log(6);
+
+	return next();
+})
 
 router.use((ctx, next) => {
 	console.log('1');
@@ -23,6 +29,10 @@ router.use((ctx, next) => {
 	return next();
 }).get('/c', function (ctx, next) {
 	console.log('4.1');
+
+	return next();
+}).get('/b', function (ctx, next) {
+	console.log('5');
 
 	return next();
 });
