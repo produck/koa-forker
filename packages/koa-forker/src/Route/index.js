@@ -1,4 +1,4 @@
-const Component = require('./Component');
+const Component = require('../Component');
 const Node = require('./Node');
 
 module.exports = class Route {
@@ -23,7 +23,7 @@ module.exports = class Route {
 				return componentNode;
 			}
 
-			for (const component of router.components()) {
+			for (const component of router.componentList) {
 				const componentNode = queryOrCreateNodeByPath(component.path);
 
 				if (component instanceof Component.Use) {
@@ -35,14 +35,15 @@ module.exports = class Route {
 						}
 					}
 				} else {
-					const methodNode = new Node.Method(component.methods);
+					for (const methodName of component.methods) {
+						const methodNode = new Node.Method(methodName);
 
-					componentNode.append(methodNode);
+						componentNode.append(methodNode);
 
-					for (const member of component.sequence) {
-						methodNode.put(member);
+						for (const member of component.sequence) {
+							methodNode.put(member);
+						}
 					}
-
 				}
 			}
 		})(router, root);

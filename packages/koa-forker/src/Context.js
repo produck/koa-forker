@@ -13,20 +13,22 @@ class Router {
 		this.paramQueueMap = {};
 	}
 
-	*components() {
-		for (const component of this.componentList) {
-			yield component;
-		}
-	}
-
 	use(pathOptions, sequence) {
-		this.componentList.push(new Component.Use({ pathOptions, sequence }));
+		const component = new Component.Use({
+			path: pathOptions, sequence
+		});
 
-		return this;
+		this.componentList.push(component);
 	}
 
 	method(methods, pathOptions, sequence) {
-		this.componentList.push(new Component.Method({ methods, pathOptions, sequence }));
+		const component = new Component.Method({
+			methods,
+			path: pathOptions,
+			sequence
+		});
+
+		this.componentList.push(component);
 	}
 
 	param(paramName, paramMiddlewareList) {

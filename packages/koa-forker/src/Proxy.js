@@ -7,13 +7,13 @@ const _ = proxy => ref.get(proxy);
 
 function isPathOptions(any) {
 	// array, object, string, regexp
-	return typeof any === 'string';
+	return typeof any !== 'function' && !(any instanceof RouterProxy);
 }
 
 function normalizeArgs(args) {
-	const pathOptions = isPathOptions(args[0]) ? args.shift() : null;
+	const pathOptions = isPathOptions(args[0]) ? args.shift() : [];
 
-	return { pathOptions, sequence: args };
+	return { pathOptions: Normalize.Path(pathOptions), sequence: args };
 }
 
 class RouterProxy {

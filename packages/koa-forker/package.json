@@ -19,7 +19,7 @@
 		"url": "git+https://github.com/produck/koa-forker.git"
 	},
 	"scripts": {
-		"test": "echo \"Error: run tests from root\" && exit 1"
+		"test": "mocha -t 999999999"
 	},
 	"bugs": {
 		"url": "https://github.com/produck/koa-forker/issues"
