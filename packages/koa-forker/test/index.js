@@ -18,7 +18,7 @@ childRouter.get('/child', function queryChildList(ctx, next) {
 
 }).post('/child', function createChild(ctx, next) {
 
-}).use(function check(ctx) {
+}).use(function check1(ctx) {
 	ctx.body = true;
 }).all('/child/toy', function queryChildToyList(ctx) {
 

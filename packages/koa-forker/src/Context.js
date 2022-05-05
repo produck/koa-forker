@@ -45,7 +45,7 @@ class Router {
 
 	Middleware(compilerOptions) {
 		const finalName = `${this.name}RouteMiddleware`;
-		const route = new Route(compilerOptions).compile(this);
+		const route = Route.compile(this, compilerOptions);
 
 		/**
 		 * Naming middleware function name dynamicly

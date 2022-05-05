@@ -7,7 +7,7 @@ module.exports = class Route {
 		this.stack = [];
 	}
 
-	compile(router) {
+	static compile(router) {
 		const root = new Node.Passage({
 			id: 'root',
 			test: () => true,
@@ -23,30 +23,21 @@ module.exports = class Route {
 				parentPassageNode.append(routerPassageNode);
 			}
 
-			function findOrCreatePassageNodeByPath(path) {
+			function createPassageNodeByPath(path) {
 				let currentPassageNode = routerPassageNode;
 
 				for (const passage of path) {
-					const existed = currentPassageNode.childNodeList.find(node => {
-						return node instanceof Node.Passage &&
-							node.passage.id === passage.id;
-					});
+					const newPassageNode = new Node.Passage(passage);
 
-					if (existed) {
-						currentPassageNode = existed;
-					} else {
-						const newPassageNode = new Node.Passage(passage);
-
-						currentPassageNode.append(newPassageNode);
-						currentPassageNode = newPassageNode;
-					}
+					currentPassageNode.append(newPassageNode);
+					currentPassageNode = newPassageNode;
 				}
 
 				return currentPassageNode;
 			}
 
 			for (const component of router.componentList) {
-				const passageNode = findOrCreatePassageNodeByPath(component.path);
+				const passageNode = createPassageNodeByPath(component.path);
 
 				if (component instanceof Component.Use) {
 					let middlewareNode = new Node.Middleware();
