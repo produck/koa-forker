@@ -8,37 +8,70 @@ module.exports = class Route {
 	}
 
 	compile(router) {
-		const root = new Node.Path('*');
+		const root = new Node.Passage({
+			id: 'root',
+			test: () => true,
+			params: {}
+		});
 
-		(function resolveRouter(router, last) {
-			const current = new Node.Path(null);
+		(function NodeTree(router, parentPassageNode) {
+			const routerPassageNode = router.hasPrefix
+				? new Node.Passage('prefix') //TODO a serial passage
+				: parentPassageNode;
 
-			last.append(current);
+			if (routerPassageNode !== parentPassageNode) {
+				parentPassageNode.append(routerPassageNode);
+			}
 
-			function queryOrCreateNodeByPath(path) {
-				const componentNode = new Node.Path(path);
+			function findOrCreatePassageNodeByPath(path) {
+				let currentPassageNode = routerPassageNode;
 
-				current.append(componentNode);
+				for (const passage of path) {
+					const existed = currentPassageNode.childNodeList.find(node => {
+						return node instanceof Node.Passage &&
+							node.passage.id === passage.id;
+					});
 
-				return componentNode;
+					if (existed) {
+						currentPassageNode = existed;
+					} else {
+						const newPassageNode = new Node.Passage(passage);
+
+						currentPassageNode.append(newPassageNode);
+						currentPassageNode = newPassageNode;
+					}
+				}
+
+				return currentPassageNode;
 			}
 
 			for (const component of router.componentList) {
-				const componentNode = queryOrCreateNodeByPath(component.path);
+				const passageNode = findOrCreatePassageNodeByPath(component.path);
 
 				if (component instanceof Component.Use) {
+					let middlewareNode = new Node.Middleware();
+
 					for (const member of component.sequence) {
 						if (typeof member === 'function') {
-							componentNode.put(member);
+							middlewareNode.put(member);
 						} else {
-							resolveRouter(member, componentNode);
+							if (middlewareNode.size > 0) {
+								passageNode.append(middlewareNode);
+								middlewareNode = new Node.Middleware();
+							}
+
+							NodeTree(member, passageNode);
 						}
 					}
-				} else {
+
+					if (middlewareNode.size > 0) {
+						passageNode.append(middlewareNode);
+					}
+				} else if (component instanceof Component.Method) {
 					for (const methodName of component.methods) {
 						const methodNode = new Node.Method(methodName);
 
-						componentNode.append(methodNode);
+						passageNode.append(methodNode);
 
 						for (const member of component.sequence) {
 							methodNode.put(member);

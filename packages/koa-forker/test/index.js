@@ -2,7 +2,9 @@ const Forker = require('../');
 
 const router = new Forker.Router();
 
-router.use(function auth(ctx, next) {
+router.use(function parseBody(ctx, next) {
+	return next();
+}, function auth(ctx, next) {
 	return next();
 });
 
@@ -18,6 +20,8 @@ childRouter.get('/child', function queryChildList(ctx, next) {
 
 }).use(function check(ctx) {
 	ctx.body = true;
+}).all('/child/toy', function queryChildToyList(ctx) {
+
 });
 
 router.Middleware();

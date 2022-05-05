@@ -5,15 +5,30 @@ const RouterContext = require('./Context');
 const ref = new WeakMap();
 const _ = proxy => ref.get(proxy);
 
-function isPathOptions(any) {
-	// array, object, string, regexp
-	return typeof any !== 'function' && !(any instanceof RouterProxy);
+function isLikePathOptions(any) {
+	if (typeof any === 'function') {
+		return false;
+	}
+
+	if (any instanceof RouterProxy) {
+		return false;
+	}
+
+	return true;
 }
 
 function normalizeArgs(args) {
-	const pathOptions = isPathOptions(args[0]) ? args.shift() : [];
+	const pathOptions = isLikePathOptions(args[0]) ? args.shift() : [];
 
 	return { pathOptions: Normalize.Path(pathOptions), sequence: args };
+}
+
+function assertMethodSequence(sequence) {
+
+}
+
+function assertUseSequence(sequence) {
+
 }
 
 class RouterProxy {
@@ -44,6 +59,8 @@ class RouterProxy {
 	use(...args) {
 		const { pathOptions, sequence } = normalizeArgs(args);
 
+		assertUseSequence(sequence);
+
 		const _sequence = sequence.map(member => {
 			return typeof member === 'function' ? member : _(member);
 		});
@@ -56,6 +73,7 @@ class RouterProxy {
 	all(...args) {
 		const { pathOptions, sequence } = normalizeArgs(args);
 
+		assertMethodSequence(sequence);
 		_(this).method(METHODS.RESTful, pathOptions, sequence);
 
 		return this;
@@ -68,6 +86,7 @@ METHODS['RESTful'].forEach(name => {
 	RouterProxy.prototype[lowerCaseName] = function (...args) {
 		const { pathOptions, sequence } = normalizeArgs(args);
 
+		assertMethodSequence(sequence);
 		_(this).method([name], pathOptions, sequence);
 
 		return this;

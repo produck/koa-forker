@@ -7,10 +7,14 @@ class Router {
 		const { name, prefix } = options;
 
 		this.name = name;
-		this.prefix = prefix;
+		this.prefix = prefix; //TODO is a path NOT string
 
 		this.componentList = [];
 		this.paramQueueMap = {};
+	}
+
+	get hasPrefix() {
+		return this.prefix !== null;
 	}
 
 	use(pathOptions, sequence) {
