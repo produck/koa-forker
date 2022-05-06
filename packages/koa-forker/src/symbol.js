@@ -1,1 +1,0 @@
-module.exports = Symbol('org.produck.koa.forker.middleware');

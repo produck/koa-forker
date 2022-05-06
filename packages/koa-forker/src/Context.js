@@ -1,5 +1,4 @@
 const Component = require('./Component');
-const mark = require('./symbol');
 const Route = require('./Route');
 
 class Router {

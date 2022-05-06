@@ -26,7 +26,7 @@ function normalizePathOptionsNode(_pathOptionsNode) {
 
 const END_SLASH_REG = /(^\/+)|(\/+$)/g;
 const SEPARATOR_REG = /\/+/g;
-const EXP_WITH_PARAM_REG = /{([a-zA-Z_$][a-zA-Z_$0-9]*)}/;
+const EXP_WITH_PARAM_REG = /{([a-zA-Z_$][a-zA-Z_$0-9]*)(\((.+)\))?}/;
 
 const PATH_FORM = [
 	{
