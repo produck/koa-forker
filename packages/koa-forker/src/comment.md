@@ -1,13 +1,5 @@
-* A router without any child router is a leaf router.
-
 * There are functions & routers in a middleware list.
-
-  For a case some functions as middleware after leaf route.
-
-* Router.use(fn) to append function middleware.
-* Router.append(router) to append router middleware.
-* APIs mapping to leaf routers.
-
+* Router.use(fn, router) to append function middleware.
 * No node then finding methods
 
 * There many components in a Router.

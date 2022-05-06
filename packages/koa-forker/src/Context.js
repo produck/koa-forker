@@ -43,20 +43,8 @@ class Router {
 		this.paramQueueMap[paramName].push(...paramMiddlewareList);
 	}
 
-	Middleware(compilerOptions) {
-		const finalName = `${this.name}RouteMiddleware`;
-		const route = Route.compile(this, compilerOptions);
-
-		/**
-		 * Naming middleware function name dynamicly
-		 */
-		return Object.assign({
-			[finalName](ctx, next) {
-				const middleware = route.match(ctx);
-
-				return middleware ? middleware(ctx, next) : next();
-			}
-		}[finalName], { [mark]: true });
+	Middleware(options) {
+		return Route.compile(this).Middleware(options);
 	}
 }
 

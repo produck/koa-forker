@@ -1,3 +1,5 @@
+const compose = require('koa-compose');
+
 const Component = require('../Component');
 const Node = require('./Node');
 
@@ -69,77 +71,150 @@ function createNodeTree(router) {
 	return root;
 }
 
-function SearchNode(passage) {
+function PathDefinitionNode(passage) {
 	return {
-		id: passage.id,
-		test: passage.test,
+		passage,
 		methods: {},
 		childList: []
 	};
 }
 
-function createPathSearchTree(nodeTree) {
-	const middlewaresStack = [];
-	const stack = [SearchNode({})];
+function createPathTree(nodeTree) {
+	const root = PathDefinitionNode(nodeTree.passage);
 
-	function findOrCreateSearchNode(passage) {
-		const currentChildList = stack[0].childList;
-		const existed = currentChildList.find(node => node.id === passage.id);
+	function findOrCreateDefinitionNode(passage, parent) {
+		const existed = parent.childList
+			.find(node => node.passage.id === passage.id);
 
 		if (existed) {
 			return existed;
 		}
 
-		const newSearchNode = SearchNode(passage);
+		const newNode = PathDefinitionNode(passage);
 
-		currentChildList.push(newSearchNode);
+		parent.childList.push(newNode);
 
-		return newSearchNode;
+		return newNode;
 	}
 
-	(function PathSearchTree(currentPassageNode) {
-		const { childNodeList, passage } = currentPassageNode;
-		const current = findOrCreateSearchNode(passage);
-
-		stack.unshift(current);
-
-		for (const node of childNodeList) {
+	(function buildPathDefinitionTreeNode(currentPassageNode, current) {
+		for (const node of currentPassageNode.childNodeList) {
 			if (node instanceof Node.Method) {
-				const { method, middlewares } = node;
-
-				if (!current.methods[method]) {
-					current.methods[method] = [];
-				}
-
-				current.methods[method]
-					.push(...middlewaresStack.flat(), ...middlewares);
-			} else if (node instanceof Node.Middleware) {
-				middlewaresStack.push(node.middlewares);
-				//TODO append existed
+				current.methods[node.method] = [];
 			} else if (node instanceof Node.Passage) {
-				PathSearchTree(node);
+				const child = findOrCreateDefinitionNode(node.passage, current);
+
+				buildPathDefinitionTreeNode(node, child);
 			}
 		}
+	})(nodeTree, root);
 
-		stack.shift();
-	})(nodeTree);
+	function loadMiddlewaresFromNode(node, middlewares) {
+		(function append(current) {
+			for (const name in current.methods) {
+				current.methods[name].push(...middlewares);
+			}
 
-	return stack[0];
+			for (const childNode of current.childList) {
+				append(childNode);
+			}
+		})(node);
+	}
+
+	(function loadPathDefinitionTreeNode(currentPassageNode, current) {
+		for (const node of currentPassageNode.childNodeList) {
+			if (node instanceof Node.Method) {
+				current.methods[node.method].push(...node.middlewares);
+			} else if (node instanceof Node.Middleware) {
+				loadMiddlewaresFromNode(current, node.middlewares);
+			} else if (node instanceof Node.Passage) {
+				const child = current.childList
+					.find(child => child.passage.id === node.passage.id);
+
+				loadPathDefinitionTreeNode(node, child);
+			}
+		}
+	})(nodeTree, root);
+
+	return root;
+}
+
+function PathSearchNode(rootDefinitionNode) {
+	const methods = {};
+
+	for (const name in rootDefinitionNode.methods) {
+		methods[name] = compose(rootDefinitionNode.methods[name]);
+	}
+
+	return {
+		test: rootDefinitionNode.passage.test,
+		methods: methods,
+		childList: rootDefinitionNode.childList.map(child => PathSearchNode(child))
+	};
+}
+
+const routePathTreeMap = new WeakMap();
+const END_SLASH_REG = /(^\/+)|(\/+$)/g;
+const SEPARATOR_REG = /\/+/g;
+
+function PassageList(path) {
+	return path.replace(END_SLASH_REG, '').split(SEPARATOR_REG);
 }
 
 module.exports = class Route {
-	constructor(pathSearchTree) {
-		this.root = pathSearchTree;
+	constructor(routerName) {
+		this.routerName = routerName;
+		Object.freeze(this);
 	}
 
-	match(path) {
-		const passageList = path.split('/');
+	get abstract() {
+		return this.pathTree;
+	}
+
+	Middleware(options) {
+		const finalName = `${this.routerName}RouteMiddleware`;
+		const root = PathSearchNode(routePathTreeMap.get(this), options);
+
+		const middleware = {
+			[finalName](ctx, next) {
+				const list = PassageList(ctx.path);
+				const length = list.length;
+
+				let current = root;
+
+				for (let index = 0; index < length; index++) {
+					const passageValue = list[index];
+					const self = current;
+
+					for (const child of current.childList) {
+						if (child.test(passageValue)) {
+							current = child;
+
+							break;
+						}
+					}
+
+					if (self === current) {
+						return next(); //404
+					}
+				}
+
+				return current.methods[ctx.method](ctx, next);
+			}
+		}[finalName];
+
+		routePathTreeMap.add(middleware);
+
+		return middleware;
 	}
 
 	static compile(router) {
 		const nodeTree = createNodeTree(router);
-		const pathSearchTree = createPathSearchTree(nodeTree);
+		const pathTree = createPathTree(nodeTree);
+		const route = new Route(router.name);
 
-		return pathSearchTree;
+		routePathTreeMap.set(route, pathTree);
+
+		return route;
 	}
 };

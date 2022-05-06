@@ -10,7 +10,9 @@ router.use(function parseBody(ctx, next) {
 
 const childRouter = new Forker.Router();
 
-router.use(childRouter, function send(ctx) {
+router.use('/child/toy', function onlyToy() {
+
+}).use(childRouter, function send(ctx) {
 	ctx.body = {};
 });
 
