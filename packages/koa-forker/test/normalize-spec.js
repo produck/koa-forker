@@ -14,43 +14,33 @@ describe('Normalize::', function () {
 		it('should be an array from "/a".', function () {
 			const path = normalizePath('/a');
 
-			assert.deepStrictEqual(path, [
-				{ id: 'a', params: {}, test: path[0].test }
-			]);
+			assert.deepStrictEqual(path, [{ name: null, path: 'a' }]);
 		});
 
 		it('should be an array from "/a/" with end slashes.', function () {
 			const path = normalizePath('/a/');
 
-			assert.deepStrictEqual(path, [
-				{ id: 'a', params: {}, test: path[0].test }
-			]);
+			assert.deepStrictEqual(path, [{ name: null, path: 'a' }]);
 		});
 
 		it('should be an array from "/a/b".', function () {
 			const path = normalizePath('/a/b');
 
-			assert.deepStrictEqual(path, [
-				{ id: 'a', params: {}, test: path[0].test },
-				{ id: 'b', params: {}, test: path[1].test }
-			]);
+			assert.deepStrictEqual(path, [{ name: null, path: 'a/b' }]);
 		});
 
 		it('should be an array from "/a//b/" with redundant slashes.', function () {
 			const path = normalizePath('/a//b/');
 
-			assert.deepStrictEqual(path, [
-				{ id: 'a', params: {}, test: path[0].test },
-				{ id: 'b', params: {}, test: path[1].test }
-			]);
+			assert.deepStrictEqual(path, [{ name: null, path: 'a/b' }]);
 		});
 
 		it('should be an array from "[a, b]".', function () {
 			const path = normalizePath(['a', 'b']);
 
 			assert.deepStrictEqual(path, [
-				{ id: 'a', params: {}, test: path[0].test },
-				{ id: 'b', params: {}, test: path[1].test }
+				{ name: null, path: 'a' },
+				{ name: null, path: 'b' },
 			]);
 		});
 
@@ -58,10 +48,38 @@ describe('Normalize::', function () {
 			const path = normalizePath(['a/b', 'c']);
 
 			assert.deepStrictEqual(path, [
-				{ id: 'a', params: {}, test: path[0].test },
-				{ id: 'b', params: {}, test: path[1].test },
-				{ id: 'c', params: {}, test: path[2].test }
+				{ name: null, path: 'a/b' },
+				{ name: null, path: 'c' }
 			]);
+		});
+
+		it('should be an array from { name: \'foo\', path: \'a\' }.', function () {
+			const path = normalizePath({ name: 'foo', path: 'a' });
+
+			assert.deepStrictEqual(path, [
+				{ name: 'foo', path: 'a' },
+			]);
+		});
+
+		it('should be an array from [\'c\', { name: \'foo\', path: \'a\' }].', function () {
+			const path = normalizePath(['c', { name: 'foo', path: 'a' }]);
+
+			assert.deepStrictEqual(path, [
+				{ name: null, path: 'c' },
+				{ name: 'foo', path: 'a' },
+			]);
+		});
+
+		it('should throw if name is invalid', function () {
+			assert.throws(() => {
+				normalizePath({ name: 1, path: 'a' });
+			});
+		});
+
+		it('should throw if path is invalid', function () {
+			assert.throws(() => {
+				normalizePath({ name: null, path: null });
+			});
 		});
 	});
 });

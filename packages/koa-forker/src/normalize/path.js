@@ -1,92 +1,65 @@
-function normalizePathOptionsNode(_pathOptionsNode) {
+const Path = require('../path');
+
+function normalizePathOptions(_pathOptionsNode) {
 	const options = {
-		params: {}
+		name: null,
+		path: ''
 	};
 
 	const {
-		id: _id,
-		test: _test,
-		params: _params = options.params
+		name: _name = options.name,
+		path: _path = options.path
 	} = _pathOptionsNode;
 
-	if (typeof _id !== 'string') {
-		throw new TypeError('Invalid .id, a string expected.');
+	if (typeof _name !== 'string' && _name !== null) {
+		throw new TypeError('Invalid .name, a string expected.');
 	}
 
-	if (typeof _test !== 'function') {
-		throw new TypeError('Invalid .test, a function expected.');
+	if (typeof _path !== 'string') {
+		throw new TypeError('Invalid .path, a string expected.');
 	}
 
-	options.id = _id;
-	options.test = _test;
-	options.params = _params;
+	options.name = _name;
+	options.path = _path;
 
 	return options;
 }
 
-const END_SLASH_REG = /(^\/+)|(\/+$)/g;
-const SEPARATOR_REG = /\/+/g;
-const EXP_WITH_PARAM_REG = /{([a-zA-Z_$][a-zA-Z_$0-9]*)(\((.+)\))?}/;
-
 const PATH_FORM = [
 	{
-		// 'a', 'a/b', '/a/b/'
 		test: raw => typeof raw === 'string',
 		normalize(pathString) {
-			const trimedPathString = pathString.trim().replace(END_SLASH_REG, '');
-
-			return trimedPathString.split(SEPARATOR_REG).map(pathStringNode => {
-				const isComplex = EXP_WITH_PARAM_REG.test(pathStringNode);
-
-				if (!isComplex) {
-					return normalizePathOptionsNode({
-						id: pathStringNode,
-						test: pathnode => pathnode === pathStringNode
-					});
-				}
-			});
-		}
-	},
-	{
-		// { userId: /^\d+$/ }
-		test: raw => {
-			if (typeof raw !== 'object') {
-				return false;
-			}
-
-			const keyList = Object.keys(raw);
-
-			if (keyList.length !== 1) {
-				return false;
-			}
-
-			return keyList[0] instanceof RegExp;
-		},
-		normalize(pathRegExpNode) {
-			const name = Object.keys(pathRegExpNode)[0];
-			const regexp = pathRegExpNode[name];
-			const regExpString = regexp.toString();
-
-			return normalizePathOptionsNode({
-				id: `{${name}(${regExpString})}`,
-				test: pathnode => pathRegExpNode.test(pathnode)
+			return normalizePathOptions({
+				path: pathString
+					.trim().replace(Path.REG.END_SLASH, '')
+					.split(Path.REG.SEPARATOR).join('/')
 			});
 		}
 	},
 	{
 		test: raw => Object.getPrototypeOf(raw) === Object.prototype,
-		normalize: normalizePathOptionsNode
+		normalize: normalizePathOptions
 	}
 ];
 
 module.exports = function normalizePath(_options = []) {
-	const matched = PATH_FORM.find(form => form.test(_options));
+	if (Array.isArray(_options)) {
+		return _options.map((_childOptions, index) => {
+			const matched = PATH_FORM.find(form => form.test(_childOptions));
 
-	if (!Array.isArray(_options) && !matched) {
-		throw new TypeError('Invalid path, array, object, string expected.');
+			if (!matched) {
+				throw new TypeError(`Invalid pathList[${index}], object, string expected.`);
+			}
+
+			return matched.normalize(_childOptions);
+		});
+	} else {
+		const matched = PATH_FORM.find(form => form.test(_options));
+
+		if (!matched) {
+			throw new TypeError('Invalid path, object, string, (object|string)[] expected.');
+		}
+
+		return [matched.normalize(_options)];
 	}
-
-	return matched
-		? matched.normalize(_options)
-		: _options.map(pathNode => normalizePath(pathNode)).flat(Infinity);
 };
