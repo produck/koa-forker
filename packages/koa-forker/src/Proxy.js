@@ -6,11 +6,7 @@ const ref = new WeakMap();
 const _ = proxy => ref.get(proxy);
 
 function isLikePathOptions(any) {
-	if (typeof any === 'function') {
-		return false;
-	}
-
-	if (any instanceof RouterProxy) {
+	if (typeof any === 'function' || any instanceof RouterProxy) {
 		return false;
 	}
 
@@ -18,9 +14,9 @@ function isLikePathOptions(any) {
 }
 
 function normalizeArgs(args) {
-	const pathOptions = isLikePathOptions(args[0]) ? args.shift() : [];
+	const path = isLikePathOptions(args[0]) ? args.shift() : '';
 
-	return { pathOptions: Normalize.Path(pathOptions), sequence: args };
+	return { pathOptionsList: Normalize.Path(path), sequence: args };
 }
 
 function assertMethodSequence(sequence) {
@@ -38,8 +34,8 @@ class RouterProxy {
 		ref.set(this, new RouterContext(finalOptions));
 	}
 
-	get abstract() {
-		return _(this).compile().abstract;
+	Route() {
+		return _(this).compile();
 	}
 
 	get _() {
@@ -57,7 +53,7 @@ class RouterProxy {
 	}
 
 	use(...args) {
-		const { pathOptions, sequence } = normalizeArgs(args);
+		const { pathOptionsList, sequence } = normalizeArgs(args);
 
 		assertUseSequence(sequence);
 
@@ -65,16 +61,16 @@ class RouterProxy {
 			return typeof member === 'function' ? member : _(member);
 		});
 
-		_(this).use(pathOptions, _sequence);
+		_(this).use(pathOptionsList, _sequence);
 
 		return this;
 	}
 
 	all(...args) {
-		const { pathOptions, sequence } = normalizeArgs(args);
+		const { pathOptionsList, sequence } = normalizeArgs(args);
 
 		assertMethodSequence(sequence);
-		_(this).method(METHODS.RESTful, pathOptions, sequence);
+		_(this).method(METHODS.RESTful, pathOptionsList, sequence);
 
 		return this;
 	}
@@ -84,10 +80,10 @@ METHODS['RESTful'].forEach(name => {
 	const lowerCaseName = name.toLowerCase();
 
 	RouterProxy.prototype[lowerCaseName] = function (...args) {
-		const { pathOptions, sequence } = normalizeArgs(args);
+		const { pathOptionsList, sequence } = normalizeArgs(args);
 
 		assertMethodSequence(sequence);
-		_(this).method([name], pathOptions, sequence);
+		_(this).method([name], pathOptionsList, sequence);
 
 		return this;
 	};

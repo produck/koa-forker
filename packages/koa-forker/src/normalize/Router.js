@@ -1,9 +1,11 @@
+const normalizePath = require('./path');
+
 const DEFAULT_NAME = '<anonymous>';
 
 module.exports = function normalizeRouterOptions(_options = {}) {
 	const options = {
 		name: DEFAULT_NAME,
-		prefix: null
+		prefix: []
 	};
 
 	const {
@@ -11,8 +13,12 @@ module.exports = function normalizeRouterOptions(_options = {}) {
 		prefix: _prefix = options.prefix
 	} = _options;
 
+	if (typeof _name !== 'string') {
+		throw new TypeError('Invalid .name, a string expected');
+	}
+
+	options.prefix = normalizePath(_prefix);
 	options.name = _name;
-	options.prefix = _prefix;
 
 	return options;
 };

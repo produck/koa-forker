@@ -24,3 +24,9 @@
 ```
 
 * Path --<> Passage
+
+# Glossary
+
+* path - a string like '/a'
+* pathOptions - a object with `path` & optional string `name`
+* pathOptionsList - a list of `pathOptions`

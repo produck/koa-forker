@@ -1,5 +1,3 @@
-const Path = require('../path');
-
 function normalizePathOptions(_pathOptionsNode) {
 	const options = {
 		name: null,
@@ -30,9 +28,7 @@ const PATH_FORM = [
 		test: raw => typeof raw === 'string',
 		normalize(pathString) {
 			return normalizePathOptions({
-				path: pathString
-					.trim().replace(Path.REG.END_SLASH, '')
-					.split(Path.REG.SEPARATOR).join('/')
+				path: pathString.trim()
 			});
 		}
 	},

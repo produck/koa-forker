@@ -6,32 +6,30 @@ class Router {
 		const { name, prefix } = options;
 
 		this.name = name;
-		this.prefix = prefix; //TODO is a path NOT string
+		this.prefix = prefix;
 
 		this.componentList = [];
 		this.paramQueueMap = {};
 	}
 
 	get hasPrefix() {
-		return this.prefix !== null;
+		return this.prefix.length > 0;
 	}
 
-	use(pathOptions, sequence) {
-		const component = new Component.Use({
-			path: pathOptions, sequence
-		});
+	use(pathOptionsList, sequence) {
+		for (const pathOptions of pathOptionsList) {
+			const component = new Component.Use({ pathOptions, sequence });
 
-		this.componentList.push(component);
+			this.componentList.push(component);
+		}
 	}
 
-	method(methods, pathOptions, sequence) {
-		const component = new Component.Method({
-			methods,
-			path: pathOptions,
-			sequence
-		});
+	method(methods, pathOptionsList, sequence) {
+		for (const pathOptions of pathOptionsList) {
+			const component = new Component.Method({ methods, pathOptions, sequence });
 
-		this.componentList.push(component);
+			this.componentList.push(component);
+		}
 	}
 
 	param(paramName, paramMiddlewareList) {
