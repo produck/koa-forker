@@ -16,9 +16,11 @@ router.use('/child/toy', function onlyToy() {
 	ctx.body = {};
 });
 
-childRouter.get('/child', function queryChildList(ctx, next) {
+childRouter.get('/501').get('/child', function queryChildList(ctx, next) {
 
-}).post('/child', function createChild(ctx, next) {
+}).post('/child', function ensure() {
+
+}, function createChild(ctx, next) {
 
 }).use(function check1(ctx) {
 	ctx.body = true;

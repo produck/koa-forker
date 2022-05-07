@@ -9,5 +9,13 @@ function splitPathToPassageList(path) {
 	return path === '' ? [] : path.replace(REG.END_SLASH, '').split(REG.SEPARATOR);
 }
 
+function compile(path) {
+	return {
+		test: () => true,
+		resolver: null
+	};
+}
+
+exports.compile = compile;
 exports.PassageList = splitPathToPassageList;
 exports.REG = REG;

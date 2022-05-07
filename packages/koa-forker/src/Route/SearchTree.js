@@ -1,19 +1,34 @@
 const compose = require('koa-compose');
 
-module.exports = function PathSearchNode(rootDefinitionNode, options) {
-	const methods = {};
+const Path = require('../path');
+const METHODS = require('../methods');
 
-	for (const name in rootDefinitionNode.methods) {
-		methods[name] = compose(rootDefinitionNode.methods[name]);
-	}
+module.exports = function createPathSearchTree(rootDefinitionNode, options) {
+	return (function PathSearchNode(definitionNode) {
+		const methods = {};
 
-	//TODO compile test()
-	//TODO 405, 501
+		for (const name in definitionNode.methods) {
+			const method = definitionNode.methods[name];
 
-	return {
-		test: rootDefinitionNode.passage.test,
-		methods: methods,
-		allowedMethods: Object.freeze([]),
-		childList: rootDefinitionNode.childList.map(child => PathSearchNode(child))
-	};
+			if (method.count > 0) {
+				methods[name] = compose(method.middlewares);
+			} else {
+				methods[name] = options.onNotImplemented;
+			}
+		}
+
+		for (const name of METHODS.RESTful.filter(name => !methods[name])) {
+			methods[name] = options.onMethodNotAllowed;
+		}
+
+		//TODO compile test()
+
+		return {
+			test: definitionNode.test,
+			hasParams: definitionNode.resolver !== null,
+			methods,
+			allowedMethods: Object.keys(methods).join(', '),
+			childList: definitionNode.childList.map(child => PathSearchNode(child))
+		};
+	})(rootDefinitionNode);
 };

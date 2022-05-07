@@ -8,6 +8,14 @@ function PathDefinitionNode(passage) {
 	};
 }
 
+function MethodDefinition() {
+	return {
+		middlewares: [],
+		count: 0,
+		passage: null
+	};
+}
+
 module.exports = function createPathTree(nodeTree) {
 	const root = PathDefinitionNode(nodeTree.passage);
 
@@ -28,7 +36,7 @@ module.exports = function createPathTree(nodeTree) {
 	(function buildPathDefinitionTreeNode(currentPassageNode, current) {
 		for (const node of currentPassageNode.childNodeList) {
 			if (node instanceof Node.Method) {
-				current.methods[node.method] = [];
+				current.methods[node.method] = MethodDefinition();
 			} else if (node instanceof Node.Passage) {
 				const child = findOrCreateDefinitionNode(node.passage, current);
 
@@ -40,7 +48,7 @@ module.exports = function createPathTree(nodeTree) {
 	function loadMiddlewaresFromNode(node, middlewares) {
 		(function append(current) {
 			for (const name in current.methods) {
-				current.methods[name].push(...middlewares);
+				current.methods[name].middlewares.push(...middlewares);
 			}
 
 			for (const childNode of current.childList) {
@@ -52,7 +60,10 @@ module.exports = function createPathTree(nodeTree) {
 	(function loadPathDefinitionTreeNode(currentPassageNode, current) {
 		for (const node of currentPassageNode.childNodeList) {
 			if (node instanceof Node.Method) {
-				current.methods[node.method].push(...node.middlewares);
+				const method = current.methods[node.method];
+
+				method.middlewares.push(...node.middlewares);
+				method.count += node.middlewares.length;
 			} else if (node instanceof Node.Middleware) {
 				loadMiddlewaresFromNode(current, node.middlewares);
 			} else if (node instanceof Node.Passage) {

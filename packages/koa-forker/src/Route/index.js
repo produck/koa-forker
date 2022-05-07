@@ -1,14 +1,13 @@
 const Reference = require('../reference');
+const Path = require('../path');
 const Node = require('./NodeTree');
 const PathDefinitionTree = require('./DefinitionTree');
 const PathSearchTree = require('./SearchTree');
 
-const routePathTreeMap = new WeakMap();
-const END_SLASH_REG = /\/+$/;
-const SEPARATOR_REG = /\/+/g;
+const toPathDefinitionTreeMap = new WeakMap();
 
 function PassageList(path) {
-	return path.replace(END_SLASH_REG, '').split(SEPARATOR_REG);
+	return path.replace(Path.REG.TAIL_SLASH, '').split(Path.REG.SEPARATOR);
 }
 
 module.exports = class Route {
@@ -26,13 +25,14 @@ module.exports = class Route {
 		const finalName = `${this.routerName}RouteMiddleware`;
 
 		const root = {
-			childList: [PathSearchTree(routePathTreeMap.get(this), options)]
+			childList: [PathSearchTree(toPathDefinitionTreeMap.get(this), options)]
 		};
 
 		const middleware = {
 			[finalName](ctx, next) {
 				const list = PassageList(ctx.path);
 				const length = list.length;
+				const paramStack = [];
 
 				let current = root;
 
@@ -43,6 +43,10 @@ module.exports = class Route {
 					for (const child of current.childList) {
 						if (child.test(passageValue)) {
 							current = child;
+
+							if (child.hasParams) {
+								paramStack.push(passageValue);
+							}
 
 							break;
 						}
@@ -55,6 +59,7 @@ module.exports = class Route {
 
 				ctx.params = {};
 				ctx.allowedMethods = current.allowedMethods;
+				Reference.ctxParamStackMap(ctx, paramStack);
 
 				return current.methods[ctx.method](ctx, next);
 			}
@@ -70,7 +75,7 @@ module.exports = class Route {
 		const pathTree = PathDefinitionTree(nodeTree);
 		const route = new Route(router.name);
 
-		routePathTreeMap.set(route, pathTree);
+		toPathDefinitionTreeMap.set(route, pathTree);
 
 		return route;
 	}
