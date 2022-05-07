@@ -6,7 +6,7 @@ const REG = {
 };
 
 function splitPathToPassageList(path) {
-	return path.replace(REG.END_SLASH, '').split(REG.SEPARATOR);
+	return path === '' ? [] : path.replace(REG.END_SLASH, '').split(REG.SEPARATOR);
 }
 
 exports.PassageList = splitPathToPassageList;

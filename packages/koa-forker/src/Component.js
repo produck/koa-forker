@@ -3,7 +3,7 @@ const Path = require('./path');
 class Component {
 	constructor({ sequence, pathOptions = null }) {
 		this.name = pathOptions.name;
-		this.path = Path.PassageList(pathOptions.path);
+		this.passageList = Path.PassageList(pathOptions.path);
 		this.sequence = sequence;
 	}
 }

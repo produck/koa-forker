@@ -49,10 +49,10 @@ function createNodeTree(router) {
 			parentPassageNode.append(routerPassageNode);
 		}
 
-		function createPassageNodeByPath(path) {
+		function createPassageNodeByPath(passageList) {
 			let currentPassageNode = routerPassageNode;
 
-			for (const passage of path) {
+			for (const passage of passageList) {
 				const newPassageNode = new PassageNode(passage);
 
 				currentPassageNode.append(newPassageNode);
@@ -63,7 +63,7 @@ function createNodeTree(router) {
 		}
 
 		for (const component of router.componentList) {
-			const passageNode = createPassageNodeByPath(component.path);
+			const passageNode = createPassageNodeByPath(component.passageList);
 
 			if (component instanceof Component.Use) {
 				let middlewareNode = new MiddlewareNode();

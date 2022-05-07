@@ -12,8 +12,7 @@ module.exports = function createPathTree(nodeTree) {
 	const root = PathDefinitionNode(nodeTree.passage);
 
 	function findOrCreateDefinitionNode(passage, parent) {
-		const existed = parent.childList
-			.find(node => node.passage.id === passage.id);
+		const existed = parent.childList.find(node => node.passage === passage);
 
 		if (existed) {
 			return existed;
@@ -58,7 +57,7 @@ module.exports = function createPathTree(nodeTree) {
 				loadMiddlewaresFromNode(current, node.middlewares);
 			} else if (node instanceof Node.Passage) {
 				const child = current.childList
-					.find(child => child.passage.id === node.passage.id);
+					.find(child => child.passage === node.passage);
 
 				loadPathDefinitionTreeNode(node, child);
 			}
