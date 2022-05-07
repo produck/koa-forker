@@ -25,7 +25,7 @@ const assertStatusCodeOptions = (any, role) => {
 	}
 };
 
-module.exports = function normalizeRouteMiddleware(_options) {
+module.exports = function normalizeRouteMiddleware(_options = {}) {
 	const options = {
 		onMethodNotAllowed: DEFAULT_METHOD_NOT_ALLOWED,
 		onNotImplemented: DEFAULT_NOT_IMPLEMENTED

@@ -1,4 +1,5 @@
 const Component = require('../Component');
+const Path = require('../path');
 
 class MiddlewareNode {
 	constructor() {
@@ -34,23 +35,11 @@ class MethodNode extends MiddlewareNode {
 }
 
 function createNodeTree(router) {
-	const root = new PassageNode({
-		id: 'root',
-		test: () => true,
-		params: {}
-	});
+	const root = new PassageNode('');
 
 	(function NodeTree(router, parentPassageNode) {
-		const routerPassageNode = router.hasPrefix
-			? new PassageNode('prefix') //TODO a serial passage
-			: parentPassageNode;
-
-		if (routerPassageNode !== parentPassageNode) {
-			parentPassageNode.append(routerPassageNode);
-		}
-
-		function createPassageNodeByPath(passageList) {
-			let currentPassageNode = routerPassageNode;
+		function createPassageNodeByPath(passageList, sourcePassageNode) {
+			let currentPassageNode = sourcePassageNode;
 
 			for (const passage of passageList) {
 				const newPassageNode = new PassageNode(passage);
@@ -62,8 +51,14 @@ function createNodeTree(router) {
 			return currentPassageNode;
 		}
 
+		const routerPassageNode = createPassageNodeByPath(
+			Path.PassageList(router.prefix),
+			parentPassageNode
+		);
+
 		for (const component of router.componentList) {
-			const passageNode = createPassageNodeByPath(component.passageList);
+			const passageNode =
+				createPassageNodeByPath(component.passageList, routerPassageNode);
 
 			if (component instanceof Component.Use) {
 				let middlewareNode = new MiddlewareNode();

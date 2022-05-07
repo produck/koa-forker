@@ -48,8 +48,10 @@ class RouterProxy {
 		return this;
 	}
 
-	Middleware(compilerOptions) {
-		return _(this).Middleware(compilerOptions);
+	Middleware(options) {
+		const finalOptions = Normalize.Middleware(options);
+
+		return _(this).Middleware(finalOptions);
 	}
 
 	use(...args) {
