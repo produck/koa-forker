@@ -2,16 +2,33 @@ const compose = require('koa-compose');
 
 const Path = require('../path');
 const METHODS = require('../methods');
+const Reference = require('../reference');
 
 module.exports = function createPathSearchTree(rootDefinitionNode, options) {
-	return (function PathSearchNode(definitionNode) {
+	return (function PathSearchNode(definitioneNode) {
+		const {
+			passage, childList, depth,
+			methods: methodDefinitions
+		} = definitioneNode;
+
+		const { test, resolver } = Path.compile(passage);
 		const methods = {};
 
-		for (const name in definitionNode.methods) {
-			const method = definitionNode.methods[name];
+		for (const name in methodDefinitions) {
+			const method = methodDefinitions[name];
+
+			const resolveParam = function resolveParam(ctx, next) {
+				const paramStack = Reference.ctxParamStackMap.get(ctx);
+
+				resolver(paramStack.pop(), ctx.params);
+
+				return next();
+			};
+
+			method.middlewares[method.passageIndexList[depth]].push(resolveParam);
 
 			if (method.count > 0) {
-				methods[name] = compose(method.middlewares);
+				methods[name] = compose(method.middlewares.flat());
 			} else {
 				methods[name] = options.onNotImplemented;
 			}
@@ -21,14 +38,11 @@ module.exports = function createPathSearchTree(rootDefinitionNode, options) {
 			methods[name] = options.onMethodNotAllowed;
 		}
 
-		//TODO compile test()
-
 		return {
-			test: definitionNode.test,
-			hasParams: definitionNode.resolver !== null,
+			test,
 			methods,
 			allowedMethods: Object.keys(methods).join(', '),
-			childList: definitionNode.childList.map(child => PathSearchNode(child))
+			childList: childList.map(child => PathSearchNode(child))
 		};
 	})(rootDefinitionNode);
 };

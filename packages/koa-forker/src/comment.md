@@ -27,6 +27,6 @@
 
 # Glossary
 
-* path - a string like '/a'
+* path - a path schema string like '/a'
 * pathOptions - a object with `path` & optional string `name`
 * pathOptionsList - a list of `pathOptions`

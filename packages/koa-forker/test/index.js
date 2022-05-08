@@ -1,6 +1,8 @@
 const Forker = require('../');
 
-const router = new Forker.Router();
+const router = new Forker.Router({
+	prefix: 'api'
+});
 
 router.use(function parseBody(ctx, next) {
 	return next();

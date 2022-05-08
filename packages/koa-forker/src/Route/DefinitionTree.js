@@ -5,11 +5,12 @@ function PathDefinitionNode(passage) {
 		parent: null,
 		passage,
 		methods: {},
-		childList: []
+		childList: [],
+		depth: 0
 	};
 }
 
-function MethodDefinitionNode() {
+function MethodDefinition() {
 	return {
 		middlewares: [],
 		passageIndexList: [],
@@ -31,6 +32,7 @@ module.exports = function createPathTree(nodeTree) {
 		const newNode = PathDefinitionNode(passage);
 
 		newNode.parent = parent;
+		newNode.depth = parent.depth + 1;
 		parent.childList.push(newNode);
 
 		return newNode;
@@ -39,7 +41,7 @@ module.exports = function createPathTree(nodeTree) {
 	(function buildPathDefinitionTreeNode(currentPassageNode, current) {
 		for (const node of currentPassageNode.childNodeList) {
 			if (node instanceof Node.Method) {
-				current.methods[node.method] = MethodDefinitionNode();
+				current.methods[node.method] = MethodDefinition();
 			} else if (node instanceof Node.Passage) {
 				const child = findOrCreateDefinitionNode(node.passage, current);
 
@@ -60,12 +62,13 @@ module.exports = function createPathTree(nodeTree) {
 		})(node);
 	}
 
-	function markPassageFirstIndexToMethod(node) {
+	function markPassageFirstMethod(node) {
 		(function mark(current) {
 			for (const name in current.methods) {
 				const { passageIndexList, middlewares } = current.methods[name];
 
 				passageIndexList.push(middlewares.length);
+				middlewares.push([]);
 			}
 
 			for (const childNode of current.childList) {
@@ -78,7 +81,7 @@ module.exports = function createPathTree(nodeTree) {
 
 	(function loadPathDefinitionTreeNode(currentPassageNode, current) {
 		if (!indexMarkedPassageNodeSet.has(current)) {
-			markPassageFirstIndexToMethod(current);
+			markPassageFirstMethod(current);
 			indexMarkedPassageNodeSet.add(current);
 		}
 

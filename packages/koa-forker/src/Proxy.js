@@ -1,6 +1,7 @@
 const Normalize = require('./normalize');
 const METHODS = require('./methods');
 const RouterContext = require('./Context');
+const Reference = require('./reference');
 
 const ref = new WeakMap();
 const _ = proxy => ref.get(proxy);
@@ -20,11 +21,31 @@ function normalizeArgs(args) {
 }
 
 function assertMethodSequence(sequence) {
+	for (const index in sequence) {
+		const middleware = sequence[index];
 
+		if (typeof middleware !== 'function') {
+			throw new TypeError(`Invalid sequence[${index}], a function expected.`);
+		}
+
+		if (Reference.routeMiddlewareSet.has(middleware)) {
+			throw new TypeError(`The sequence[${index}] COULD NOT be a Route Middleware.`);
+		}
+	}
 }
 
 function assertUseSequence(sequence) {
+	for (const index in sequence) {
+		const middleware = sequence[index];
 
+		if (typeof middleware !== 'function' && !(middleware instanceof RouterProxy)) {
+			throw new TypeError(`Invalid sequence[${index}], a function or Router expected.`);
+		}
+
+		if (Reference.routeMiddlewareSet.has(middleware)) {
+			throw new TypeError(`The sequence[${index}] COULD NOT be a Route Middleware.`);
+		}
+	}
 }
 
 class RouterProxy {

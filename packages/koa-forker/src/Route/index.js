@@ -6,8 +6,8 @@ const PathSearchTree = require('./SearchTree');
 
 const toPathDefinitionTreeMap = new WeakMap();
 
-function PassageList(path) {
-	return path.replace(Path.REG.TAIL_SLASH, '').split(Path.REG.SEPARATOR);
+function PassageValueList(pathValue) {
+	return pathValue.replace(Path.REG.TAIL_SLASH, '').split(Path.REG.SEPARATOR);
 }
 
 module.exports = class Route {
@@ -30,7 +30,7 @@ module.exports = class Route {
 
 		const middleware = {
 			[finalName](ctx, next) {
-				const list = PassageList(ctx.path);
+				const list = PassageValueList(ctx.path);
 				const length = list.length;
 				const paramStack = [];
 
@@ -43,10 +43,7 @@ module.exports = class Route {
 					for (const child of current.childList) {
 						if (child.test(passageValue)) {
 							current = child;
-
-							if (child.hasParams) {
-								paramStack.push(passageValue);
-							}
+							paramStack.push(passageValue);
 
 							break;
 						}
