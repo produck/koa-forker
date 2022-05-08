@@ -4,6 +4,10 @@ const Path = require('../path');
 const METHODS = require('../methods');
 const Reference = require('../reference');
 
+function getPassageMiddlewareSlot(method, passageDepth) {
+	return method.middlewares[method.passageIndexList[passageDepth]];
+}
+
 module.exports = function createPathSearchTree(rootDefinitionNode, options) {
 	return (function PathSearchNode(definitioneNode) {
 		const {
@@ -12,26 +16,25 @@ module.exports = function createPathSearchTree(rootDefinitionNode, options) {
 		} = definitioneNode;
 
 		const { test, resolver } = Path.compile(passage);
+
+		function resolveParam(ctx, next) {
+			const paramStack = Reference.ctxParamStackMap.get(ctx);
+
+			resolver(paramStack.pop(), ctx.params);
+
+			return next();
+		}
+
 		const methods = {};
 
 		for (const name in methodDefinitions) {
 			const method = methodDefinitions[name];
 
-			const resolveParam = function resolveParam(ctx, next) {
-				const paramStack = Reference.ctxParamStackMap.get(ctx);
+			getPassageMiddlewareSlot(method, depth).push(resolveParam);
 
-				resolver(paramStack.pop(), ctx.params);
-
-				return next();
-			};
-
-			method.middlewares[method.passageIndexList[depth]].push(resolveParam);
-
-			if (method.count > 0) {
-				methods[name] = compose(method.middlewares.flat());
-			} else {
-				methods[name] = options.onNotImplemented;
-			}
+			methods[name] = method.count > 0
+				? compose(method.middlewares.flat(Infinity))
+				: options.onNotImplemented;
 		}
 
 		for (const name of METHODS.RESTful.filter(name => !methods[name])) {
