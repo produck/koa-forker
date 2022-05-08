@@ -55,18 +55,48 @@ class RouterProxy {
 		ref.set(this, new RouterContext(finalOptions));
 	}
 
+	get prefix() {
+		return _(this).prefix;
+	}
+
+	set prefix(value) {
+		if (typeof value !== 'string') {
+			throw new TypeError('Invalid prefix, a string expected.');
+		}
+
+		_(this).prefix = value;
+	}
+
 	Route() {
 		return _(this).compile();
 	}
 
-	get _() {
-		return _(this);
+	param(param, paramMiddleware) {
+		if (typeof param !== 'string') {
+			throw new TypeError('Invalid param, a string expected.');
+		}
+
+		if (typeof paramMiddleware !== 'function') {
+			throw new TypeError('Invalid paramMiddleware, a function expected.');
+		}
+
+		return this.use(function ParamMiddleware(ctx, next) {
+			const value = ctx.params[param];
+
+			if (value) {
+				return paramMiddleware(value, ctx, next);
+			}
+		});
 	}
 
-	param(param, ...paramMiddlewares) {
-		_(this).param(param, paramMiddlewares);
+	redirect(pathOptionsList, name, code = 301) {
+		return this.all(pathOptionsList, function ForkerRedirectMiddleware(ctx) {
+			const { queryString, origin } = ctx;
+			const path = ctx.route.url(name, ctx.param, { queryString, origin });
 
-		return this;
+			ctx.redirect(path);
+			ctx.status = code;
+		});
 	}
 
 	Middleware(options) {

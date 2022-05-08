@@ -23,6 +23,7 @@ module.exports = class Route {
 
 	Middleware(options) {
 		const finalName = `${this.routerName}RouteMiddleware`;
+		const route = this;
 
 		const root = {
 			childList: [PathSearchTree(toPathDefinitionTreeMap.get(this), options)]
@@ -50,7 +51,7 @@ module.exports = class Route {
 					}
 
 					if (self === current) {
-						return next(); //404
+						return next();
 					}
 				}
 
@@ -60,6 +61,7 @@ module.exports = class Route {
 					return next();
 				}
 
+				ctx.route = route;
 				ctx.params = {};
 				ctx.allowedMethods = current.allowedMethods;
 				Reference.ctxParamStackMap.set(ctx, paramStack);
@@ -73,12 +75,24 @@ module.exports = class Route {
 		return middleware;
 	}
 
+	get(name) {
+		const definitionTree = toPathDefinitionTreeMap.get(this);
+
+	}
+
+	url(name, params, options) {
+		const record = this.get(name);
+		const url = new URL();
+
+		return url.href.replace(url.origin, '');
+	}
+
 	static compile(router) {
 		const nodeTree = Node.createTree(router);
-		const pathTree = PathDefinitionTree(nodeTree);
+		const definitionTree = PathDefinitionTree(nodeTree);
 		const route = new Route(router.name);
 
-		toPathDefinitionTreeMap.set(route, pathTree);
+		toPathDefinitionTreeMap.set(route, definitionTree);
 
 		return route;
 	}
