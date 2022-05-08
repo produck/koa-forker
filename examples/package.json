@@ -16,6 +16,7 @@
 	},
 	"devDependencies": {
 		"@koa/router": "^10.1.1",
+		"@produck/koa-forker": "^0.0.0",
 		"koa": "^2.13.4"
 	}
 }

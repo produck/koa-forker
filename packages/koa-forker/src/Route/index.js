@@ -54,11 +54,17 @@ module.exports = class Route {
 					}
 				}
 
+				const matchedMethod = current.methods[ctx.method];
+
+				if (!matchedMethod) {
+					return next();
+				}
+
 				ctx.params = {};
 				ctx.allowedMethods = current.allowedMethods;
-				Reference.ctxParamStackMap(ctx, paramStack);
+				Reference.ctxParamStackMap.set(ctx, paramStack);
 
-				return current.methods[ctx.method](ctx, next);
+				return matchedMethod(ctx, next);
 			}
 		}[finalName];
 

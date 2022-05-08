@@ -2,7 +2,7 @@ const compose = require('koa-compose');
 
 function DEFAULT_METHOD_NOT_ALLOWED(ctx) {
 	ctx.set('Allow', ctx.allowedMethods);
-	ctx.throw(405);
+	ctx.status = 405;
 }
 
 function DEFAULT_NOT_IMPLEMENTED(ctx) {

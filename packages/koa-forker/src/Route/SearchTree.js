@@ -37,15 +37,23 @@ module.exports = function createPathSearchTree(rootDefinitionNode, options) {
 				: options.onNotImplemented;
 		}
 
-		for (const name of METHODS.RESTful.filter(name => !methods[name])) {
-			methods[name] = options.onMethodNotAllowed;
-		}
-
-		return {
+		const searchNode = {
 			test,
 			methods,
-			allowedMethods: Object.keys(methods).join(', '),
+			allowedMethods: '',
 			childList: childList.map(child => PathSearchNode(child))
 		};
+
+		const allowedMethodList = Object.keys(methods);
+
+		if (allowedMethodList.length > 0) {
+			searchNode.allowedMethods = Object.keys(methods).join(', ');
+
+			for (const name of METHODS.RESTful.filter(name => !methods[name])) {
+				methods[name] = options.onMethodNotAllowed;
+			}
+		}
+
+		return searchNode;
 	})(rootDefinitionNode);
 };
