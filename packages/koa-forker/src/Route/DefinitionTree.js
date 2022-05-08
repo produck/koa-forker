@@ -15,7 +15,9 @@ function MethodDefinition() {
 		middlewares: [],
 		passageIndexList: [],
 		count: 0,
-		passage: null
+		passage: null,
+		pathNames: {},
+		routerNames: {}
 	};
 }
 
@@ -90,6 +92,8 @@ module.exports = function createPathTree(nodeTree) {
 				const method = current.methods[node.method];
 
 				method.middlewares.push(...node.middlewares);
+				Object.assign(method.routerNames, node.routerNames);
+				Object.assign(method.pathNames, node.pathNames);
 				method.count += node.middlewares.length;
 			} else if (node instanceof Node.Middleware) {
 				loadMiddlewaresFromNode(current, node.middlewares);

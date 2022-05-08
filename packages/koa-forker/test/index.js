@@ -1,6 +1,7 @@
 const Forker = require('../');
 
 const router = new Forker.Router({
+	name: 'API_ROOT',
 	prefix: 'api'
 });
 
@@ -10,7 +11,9 @@ router.use(function parseBody(ctx, next) {
 	return next();
 });
 
-const childRouter = new Forker.Router();
+const childRouter = new Forker.Router({
+	name: 'child'
+});
 
 router.use('/child/toy', function onlyToy() {
 
@@ -18,7 +21,10 @@ router.use('/child/toy', function onlyToy() {
 	ctx.body = {};
 });
 
-childRouter.get('/501').get('/child', function queryChildList(ctx, next) {
+childRouter.get('/501').get({
+	name: 'queryChild',
+	path: '/child'
+}, function queryChildList(ctx, next) {
 
 }).post('/child', function ensure() {
 

@@ -31,6 +31,8 @@ class MethodNode extends MiddlewareNode {
 		super();
 
 		this.method = method;
+		this.pathNames = {};
+		this.routerNames = {};
 	}
 }
 
@@ -84,6 +86,14 @@ function createNodeTree(router) {
 					const methodNode = new MethodNode(methodName);
 
 					passageNode.append(methodNode);
+
+					if (router.name) {
+						methodNode.routerNames[router.name] = true;
+					}
+
+					if (component.name) {
+						methodNode.pathNames[component.name] = true;
+					}
 
 					for (const member of component.sequence) {
 						methodNode.put(member);
