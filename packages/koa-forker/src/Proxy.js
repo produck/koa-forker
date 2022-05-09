@@ -82,7 +82,7 @@ class RouterProxy {
 			throw new TypeError('Invalid paramMiddleware, a function expected.');
 		}
 
-		return this.use(function ParamMiddleware(ctx, next) {
+		return this.use(function paramMiddleware(ctx, next) {
 			const value = ctx.params[param];
 
 			return value ? paramMiddleware(value, ctx, next) : next();
@@ -100,7 +100,7 @@ class RouterProxy {
 			throw new TypeError('Invalid path name, a string expected.');
 		}
 
-		return this.all(pathOptionsList, function RedirectMiddleware(ctx) {
+		return this.all(pathOptionsList, function redirectMiddleware(ctx) {
 			const { queryString, origin } = ctx;
 			const path = ctx.route.url(name, ctx.param, { queryString, origin });
 

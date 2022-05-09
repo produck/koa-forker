@@ -5,9 +5,7 @@ const router = new Forker.Router({
 	prefix: 'api'
 });
 
-router.all(function redirect() {
-
-}).use(function parseBody(ctx, next) {
+router.use(function parseBody(ctx, next) {
 	return next();
 }, function auth(ctx, next) {
 	return next();

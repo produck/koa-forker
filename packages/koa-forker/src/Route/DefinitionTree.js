@@ -69,7 +69,6 @@ module.exports = function createPathTree(nodeTree) {
 				const { passageIndexList, middlewares } = current.methods[name];
 
 				passageIndexList.push(middlewares.length);
-				middlewares.push([]);
 			}
 
 			for (const childNode of current.childList) {

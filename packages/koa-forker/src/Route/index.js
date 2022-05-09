@@ -66,7 +66,7 @@ module.exports = class Route {
 				ctx.allowedMethods = current.allowedMethods;
 				Reference.ctxParamStackMap.set(ctx, passageValueList);
 
-				return matchedMethod(ctx, next);
+				return matchedMethod.middleware(ctx, next);
 			}
 		}[finalName];
 
