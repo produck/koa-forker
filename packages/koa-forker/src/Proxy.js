@@ -48,6 +48,8 @@ function assertUseSequence(sequence) {
 	}
 }
 
+const AVAILABLE_REDIRECT_CODE = [301, 302, 303, 307, 308];
+
 class RouterProxy {
 	constructor(options) {
 		const finalOptions = Normalize.Router(options);
@@ -83,14 +85,22 @@ class RouterProxy {
 		return this.use(function ParamMiddleware(ctx, next) {
 			const value = ctx.params[param];
 
-			if (value) {
-				return paramMiddleware(value, ctx, next);
-			}
+			return value ? paramMiddleware(value, ctx, next) : next();
 		});
 	}
 
 	redirect(pathOptionsList, name, code = 301) {
-		return this.all(pathOptionsList, function ForkerRedirectMiddleware(ctx) {
+		if (!AVAILABLE_REDIRECT_CODE.includes(code)) {
+			const availables = AVAILABLE_REDIRECT_CODE.join(', ');
+
+			throw new TypeError(`Invalid code, ${availables} expected.`);
+		}
+
+		if (typeof name !== 'string') {
+			throw new TypeError('Invalid path name, a string expected.');
+		}
+
+		return this.all(pathOptionsList, function RedirectMiddleware(ctx) {
 			const { queryString, origin } = ctx;
 			const path = ctx.route.url(name, ctx.param, { queryString, origin });
 
@@ -111,7 +121,13 @@ class RouterProxy {
 		assertUseSequence(sequence);
 
 		const _sequence = sequence.map(member => {
-			return typeof member === 'function' ? member : _(member);
+			if (typeof member === 'function') {
+				return member;
+			}
+
+			if (member instanceof RouterProxy) {
+				return _(member);
+			}
 		});
 
 		_(this).use(pathOptionsList, _sequence);

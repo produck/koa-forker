@@ -20,7 +20,7 @@ module.exports = function createPathSearchTree(rootDefinitionNode, options) {
 		function resolveParam(ctx, next) {
 			const paramStack = Reference.ctxParamStackMap.get(ctx);
 
-			resolver(paramStack.pop(), ctx.params);
+			resolver(paramStack[depth], ctx.params);
 
 			return next();
 		}

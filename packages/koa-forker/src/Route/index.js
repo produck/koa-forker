@@ -31,26 +31,25 @@ module.exports = class Route {
 
 		const middleware = {
 			[finalName](ctx, next) {
-				const list = PassageValueList(ctx.path);
-				const length = list.length;
-				const paramStack = [];
+				const passageValueList = PassageValueList(ctx.path);
+				const length = passageValueList.length;
 
 				let current = root;
 
 				for (let index = 0; index < length; index++) {
-					const passageValue = list[index];
+					const passageValue = passageValueList[index];
 					const self = current;
 
 					for (const child of current.childList) {
 						if (child.test(passageValue)) {
 							current = child;
-							paramStack.push(passageValue);
 
 							break;
 						}
 					}
 
 					if (self === current) {
+						// No matched path then passthrough
 						return next();
 					}
 				}
@@ -58,13 +57,14 @@ module.exports = class Route {
 				const matchedMethod = current.methods[ctx.method];
 
 				if (!matchedMethod) {
+					// There is not any method in the matched path then passthrough.
 					return next();
 				}
 
 				ctx.route = route;
 				ctx.params = {};
 				ctx.allowedMethods = current.allowedMethods;
-				Reference.ctxParamStackMap.set(ctx, paramStack);
+				Reference.ctxParamStackMap.set(ctx, passageValueList);
 
 				return matchedMethod(ctx, next);
 			}
