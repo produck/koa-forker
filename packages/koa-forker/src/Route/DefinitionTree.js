@@ -6,6 +6,7 @@ function PathDefinitionNode(passage) {
 		passage,
 		methods: {},
 		childList: [],
+		pathNames: {},
 		depth: 0
 	};
 }
@@ -15,8 +16,6 @@ function MethodDefinition() {
 		middlewares: [],
 		passageIndexList: [],
 		count: 0,
-		passage: null,
-		pathNames: {},
 		routerNames: {}
 	};
 }
@@ -82,6 +81,8 @@ module.exports = function createPathTree(nodeTree) {
 	const indexMarkedPassageNodeSet = new Set();
 
 	(function loadPathDefinitionTreeNode(currentPassageNode, current) {
+		Object.assign(current.pathNames, currentPassageNode.pathNames);
+
 		if (!indexMarkedPassageNodeSet.has(current)) {
 			markPassageFirstMethod(current);
 			indexMarkedPassageNodeSet.add(current);
@@ -93,7 +94,6 @@ module.exports = function createPathTree(nodeTree) {
 
 				method.middlewares.push(...node.middlewares);
 				Object.assign(method.routerNames, node.routerNames);
-				Object.assign(method.pathNames, node.pathNames);
 				method.count += node.middlewares.length;
 			} else if (node instanceof Node.Middleware) {
 				loadMiddlewaresFromNode(current, node.middlewares);

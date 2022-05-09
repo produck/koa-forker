@@ -18,6 +18,7 @@ class MiddlewareNode {
 class PassageNode {
 	constructor(passage) {
 		this.passage = passage;
+		this.pathNames = {};
 		this.childNodeList = [];
 	}
 
@@ -31,7 +32,6 @@ class MethodNode extends MiddlewareNode {
 		super();
 
 		this.method = method;
-		this.pathNames = {};
 		this.routerNames = {};
 	}
 }
@@ -40,7 +40,7 @@ function createNodeTree(router) {
 	const root = new PassageNode('');
 
 	(function NodeTree(router, parentPassageNode) {
-		function createPassageNodeByPath(passageList, sourcePassageNode) {
+		function createPassageNodeByPath(name, passageList, sourcePassageNode) {
 			let currentPassageNode = sourcePassageNode;
 
 			for (const passage of passageList) {
@@ -50,17 +50,22 @@ function createNodeTree(router) {
 				currentPassageNode = newPassageNode;
 			}
 
+			if (name !== null) {
+				currentPassageNode.pathNames[name] = true;
+			}
+
 			return currentPassageNode;
 		}
 
 		const routerPassageNode = createPassageNodeByPath(
+			null,
 			Path.PassageList(router.prefix),
 			parentPassageNode
 		);
 
 		for (const component of router.componentList) {
-			const passageNode =
-				createPassageNodeByPath(component.passageList, routerPassageNode);
+			const { name, passageList } = component;
+			const passageNode = createPassageNodeByPath(name, passageList, routerPassageNode);
 
 			if (component instanceof Component.Use) {
 				let middlewareNode = new MiddlewareNode();
@@ -89,10 +94,6 @@ function createNodeTree(router) {
 
 					if (router.name) {
 						methodNode.routerNames[router.name] = true;
-					}
-
-					if (component.name) {
-						methodNode.pathNames[component.name] = true;
 					}
 
 					for (const member of component.sequence) {

@@ -5,7 +5,9 @@ const router = new Forker.Router({
 	prefix: 'api'
 });
 
-router.use(function parseBody(ctx, next) {
+router.all(function redirect() {
+
+}).use(function parseBody(ctx, next) {
 	return next();
 }, function auth(ctx, next) {
 	return next();
@@ -21,19 +23,22 @@ router.use('/child/toy', function onlyToy() {
 	ctx.body = {};
 });
 
-childRouter.get('/501').get({
-	name: 'queryChild',
-	path: '/child'
-}, function queryChildList(ctx, next) {
+childRouter
+	.get('/501')
+	.get({
+		name: 'queryChild', path: '/child'
+	}, function queryChildList(ctx, next) {
 
-}).post('/child', function ensure() {
+	})
+	.post('/child', function ensure() {
 
-}, function createChild(ctx, next) {
+	}, function createChild(ctx, next) {
 
-}).use(function check1(ctx) {
-	ctx.body = true;
-}).all('/child/toy', function queryChildToyList(ctx) {
+	})
+	.use(function check1(ctx) {
+		ctx.body = true;
+	}).all('/child/toy', function queryChildToyList(ctx) {
 
-});
+	});
 
 router.Middleware();
