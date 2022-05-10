@@ -2,6 +2,7 @@ const Normalize = require('./normalize');
 const METHODS = require('./methods');
 const RouterContext = require('./Context');
 const Reference = require('./reference');
+const Route = require('./Route');
 
 const ref = new WeakMap();
 const _ = proxy => ref.get(proxy);
@@ -70,7 +71,7 @@ class RouterProxy {
 	}
 
 	Route() {
-		return _(this).compile();
+		return Route.compile(_(this));
 	}
 
 	param(param, paramMiddleware) {

@@ -22,7 +22,7 @@ router.use('/child/toy', function onlyToy() {
 });
 
 childRouter
-	.get('/501')
+	.get({ name: '501', path: '/501/{id}/{id2}'})
 	.get({
 		name: 'queryChild', path: '/child'
 	}, function queryChildList(ctx, next) {
@@ -40,3 +40,12 @@ childRouter
 	});
 
 router.Middleware();
+
+const route = router.Route();
+
+console.log(route);
+
+// const url = route.url('501', { id: '1', id2: '2' });
+const url = route.url('queryChild');
+
+console.log(url);

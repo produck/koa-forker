@@ -5,7 +5,7 @@ const G_EXP_WITH_PARAM = new RegExp(REG.EXP_WITH_PARAM, 'g');
 function resolvePassage(passage) {
 	const template = {
 		render: () => '',
-		testMap: {}
+		regexpMap: {}
 	};
 
 	if (REG.EXP_WITH_PARAM.test(passage)) {
@@ -21,10 +21,8 @@ function resolvePassage(passage) {
 				exp: _exp = REG.DEFAULT_PARAM_REG.source
 			} = groups;
 
-			const finalRegExp = new RegExp(_exp);
-
 			sectionList.splice(index + 1, 0, (params) => params[_key]);
-			template.testMap[_key] = sectionValue => finalRegExp.test(sectionValue);
+			template.regexpMap[_key] = new RegExp(_exp);
 		});
 
 		template.render = (params) => {
@@ -49,15 +47,15 @@ module.exports = function NamedPathMap(definitionTree) {
 			return;
 		}
 
-		const paramTestMap = {}, passageTemplateList = [];
+		const paramRegexpMap = {}, passageTemplateList = [];
 
 		let current = node;
 
 		while (current !== null) {
-			const { render, testMap } = resolvePassage();
+			const { render, regexpMap } = resolvePassage(current.passage);
 
 			passageTemplateList.unshift(render);
-			Object.assign(paramTestMap, testMap);
+			Object.assign(paramRegexpMap, regexpMap);
 			current = current.parent;
 		}
 
@@ -66,9 +64,13 @@ module.exports = function NamedPathMap(definitionTree) {
 		}
 
 		function assert(params) {
-			for (const key in paramTestMap) {
-				if (paramTestMap[key](params[key])) {
-					throw new Error(`Invalid params.${key} value.`);
+			for (const key in paramRegexpMap) {
+				const regexp = paramRegexpMap[key];
+
+				if (!regexp.test(params[key])) {
+					throw new Error(
+						`Invalid params.${key} value, a string matched ${regexp} expected`
+					);
 				}
 			}
 		}

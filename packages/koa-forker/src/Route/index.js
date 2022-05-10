@@ -80,12 +80,14 @@ module.exports = class RouteHub {
 		return middleware;
 	}
 
-	url(name, params, options) {
+	url(name, params = {}, options) {
 		const namedPath = this.namedPathMap[name];
 
-		if (namedPath === null) {
+		if (!namedPath) {
 			return null;
 		}
+
+		namedPath.assert(params);
 
 		const pathValue = namedPath.render(params);
 		const { pathname, search } = new URL(pathValue, 'http://e');
