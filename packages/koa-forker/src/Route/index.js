@@ -1,18 +1,20 @@
 const Reference = require('../reference');
-const Path = require('../path');
+const { REG } = require('../path');
 const Node = require('./NodeTree');
 const PathDefinitionTree = require('./DefinitionTree');
 const PathSearchTree = require('./SearchTree');
+const NamedPathMap = require('./NamedPathMap');
 
-const toPathDefinitionTreeMap = new WeakMap();
+module.exports = class RouteHub {
+	constructor(router) {
+		const nodeTree = Node.createTree(router);
+		const definitionTree = PathDefinitionTree(nodeTree);
+		const namedPathMap = NamedPathMap(definitionTree);
 
-function PassageValueList(pathValue) {
-	return pathValue.replace(Path.REG.TAIL_SLASH, '').split(Path.REG.SEPARATOR);
-}
+		this.router = router;
+		this.definitionTree = definitionTree;
+		this.namedPathMap = namedPathMap;
 
-module.exports = class Route {
-	constructor(routerName) {
-		this.routerName = routerName;
 		Object.freeze(this);
 	}
 
@@ -22,16 +24,19 @@ module.exports = class Route {
 	}
 
 	Middleware(options) {
-		const finalName = `${this.routerName}RouteMiddleware`;
+		const finalName = `${this.router.name}RouteMiddleware`;
 		const route = this;
 
 		const root = {
-			childList: [PathSearchTree(toPathDefinitionTreeMap.get(this), options)]
+			childList: [PathSearchTree(this.definitionTree, options)]
 		};
 
 		const middleware = {
 			[finalName](ctx, next) {
-				const passageValueList = PassageValueList(ctx.path);
+				const passageValueList = ctx.path
+					.replace(REG.TAIL_SLASH, '')
+					.split(REG.SEPARATOR);
+
 				const length = passageValueList.length;
 
 				let current = root;
@@ -75,24 +80,21 @@ module.exports = class Route {
 		return middleware;
 	}
 
-	get(name) {
-		const definitionTree = toPathDefinitionTreeMap.get(this);
-
-	}
-
 	url(name, params, options) {
-		const record = this.get(name);
-		const url = new URL();
+		const namedPath = this.namedPathMap[name];
 
-		return url.href.replace(url.origin, '');
+		if (namedPath === null) {
+			return null;
+		}
+
+		const pathValue = namedPath.render(params);
+		const { pathname, search } = new URL(pathValue, 'http://e');
+
+		return `${pathname}${search}`;
 	}
 
 	static compile(router) {
-		const nodeTree = Node.createTree(router);
-		const definitionTree = PathDefinitionTree(nodeTree);
-		const route = new Route(router.name);
-
-		toPathDefinitionTreeMap.set(route, definitionTree);
+		const route = new RouteHub(router);
 
 		return route;
 	}

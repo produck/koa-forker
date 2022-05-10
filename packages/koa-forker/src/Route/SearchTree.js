@@ -103,6 +103,5 @@ module.exports = function createPathSearchTree(rootDefinitionNode, options) {
 		}
 	})(searchTree);
 
-
 	return searchTree;
 };
