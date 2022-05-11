@@ -6,7 +6,9 @@ const PathSearchTree = require('./SearchTree');
 const NamedPathMap = require('./NamedPathMap');
 
 module.exports = class RouteHub {
-	constructor(router) {
+	constructor(router, proxy) {
+		this.$ = proxy;
+
 		const nodeTree = Node.createTree(router);
 		const definitionTree = PathDefinitionTree(nodeTree);
 		const namedPathMap = NamedPathMap(definitionTree);
@@ -80,24 +82,21 @@ module.exports = class RouteHub {
 		return middleware;
 	}
 
-	url(name, params = {}, options) {
+	url(name, params, options) {
 		const namedPath = this.namedPathMap[name];
 
 		if (!namedPath) {
 			return null;
 		}
 
+		//TODO paramsMapper
 		namedPath.assert(params);
 
 		const pathValue = namedPath.render(params);
-		const { pathname, search } = new URL(pathValue, 'http://e');
+		const url = new URL(pathValue, 'http://e');
 
-		return `${pathname}${search}`;
-	}
+		url.search = options.queryString;
 
-	static compile(router) {
-		const route = new RouteHub(router);
-
-		return route;
+		return `${url.pathname}${url.search}`;
 	}
 };

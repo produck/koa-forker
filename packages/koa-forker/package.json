@@ -11,6 +11,7 @@
 	"homepage": "https://github.com/produck/koa-forker/tree/main/packages/koa-forker#readme",
 	"license": "MIT",
 	"main": "index.js",
+	"types": "types/index.d.ts",
 	"publishConfig": {
 		"access": "public"
 	},

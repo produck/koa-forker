@@ -1,5 +1,5 @@
 const Component = require('./Component');
-const Route = require('./Route');
+const Route = require('./RouteHub');
 
 class Router {
 	constructor(options) {
@@ -10,10 +10,6 @@ class Router {
 
 		this.componentList = [];
 		this.paramQueueMap = {};
-	}
-
-	get hasPrefix() {
-		return this.prefix.length > 0;
 	}
 
 	use(pathOptionsList, sequence) {

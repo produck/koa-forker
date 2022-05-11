@@ -35,7 +35,7 @@ function resolvePassage(passage) {
 	return template;
 }
 
-module.exports = function NamedPathMap(definitionTree) {
+function NamedPathMap(definitionTree) {
 	const map = {};
 
 	(function visit(node) {
@@ -79,4 +79,6 @@ module.exports = function NamedPathMap(definitionTree) {
 	})(definitionTree);
 
 	return map;
-};
+}
+
+module.exports = NamedPathMap;

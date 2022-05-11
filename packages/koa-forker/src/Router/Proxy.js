@@ -8,17 +8,19 @@ const ref = new WeakMap();
 const _ = proxy => ref.get(proxy);
 
 function isLikePathOptions(any) {
-	if (typeof any === 'function' || any instanceof RouterProxy) {
-		return false;
-	}
-
-	return true;
+	return !(typeof any === 'function' || any instanceof RouterProxy);
 }
 
-function normalizeArgs(args) {
+function resolveArgs(args) {
 	const path = isLikePathOptions(args[0]) ? args.shift() : '';
 
 	return { pathOptionsList: Normalize.Path(path), sequence: args };
+}
+
+function assertNotRouteHubMiddleware(middleware, index) {
+	if (Reference.routeMiddlewareSet.has(middleware)) {
+		throw new TypeError(`The sequence[${index}] COULD NOT be a Route Middleware.`);
+	}
 }
 
 function assertMethodSequence(sequence) {
@@ -29,27 +31,9 @@ function assertMethodSequence(sequence) {
 			throw new TypeError(`Invalid sequence[${index}], a function expected.`);
 		}
 
-		if (Reference.routeMiddlewareSet.has(middleware)) {
-			throw new TypeError(`The sequence[${index}] COULD NOT be a Route Middleware.`);
-		}
+		assertNotRouteHubMiddleware(middleware, index);
 	}
 }
-
-function assertUseSequence(sequence) {
-	for (const index in sequence) {
-		const middleware = sequence[index];
-
-		if (typeof middleware !== 'function' && !(middleware instanceof RouterProxy)) {
-			throw new TypeError(`Invalid sequence[${index}], a function or Router expected.`);
-		}
-
-		if (Reference.routeMiddlewareSet.has(middleware)) {
-			throw new TypeError(`The sequence[${index}] COULD NOT be a Route Middleware.`);
-		}
-	}
-}
-
-const AVAILABLE_REDIRECT_CODE = [301, 302, 303, 307, 308];
 
 class RouterProxy {
 	constructor(options) {
@@ -90,23 +74,19 @@ class RouterProxy {
 		});
 	}
 
-	redirect(pathOptionsList, name, code = 301) {
-		if (!AVAILABLE_REDIRECT_CODE.includes(code)) {
-			const availables = AVAILABLE_REDIRECT_CODE.join(', ');
-
-			throw new TypeError(`Invalid code, ${availables} expected.`);
-		}
-
+	redirect(pathOptionsList, name, options) {
 		if (typeof name !== 'string') {
 			throw new TypeError('Invalid path name, a string expected.');
 		}
 
+		const finalOptions = Normalize.Redirect(options);
+
 		return this.all(pathOptionsList, function redirectMiddleware(ctx) {
-			const { queryString, origin } = ctx;
-			const path = ctx.route.url(name, ctx.param, { queryString, origin });
+			const { queryString } = ctx;
+			const path = ctx.route.url(name, ctx.param, { queryString });
 
 			ctx.redirect(path);
-			ctx.status = code;
+			ctx.status = finalOptions.code;
 		});
 	}
 
@@ -117,9 +97,17 @@ class RouterProxy {
 	}
 
 	use(...args) {
-		const { pathOptionsList, sequence } = normalizeArgs(args);
+		const { pathOptionsList, sequence } = resolveArgs(args);
 
-		assertUseSequence(sequence);
+		for (const index in sequence) {
+			const middleware = sequence[index];
+
+			if (typeof middleware !== 'function' && !(middleware instanceof RouterProxy)) {
+				throw new TypeError(`Invalid sequence[${index}], a function or Router expected.`);
+			}
+
+			assertNotRouteHubMiddleware(middleware, index);
+		}
 
 		const _sequence = sequence.map(member => {
 			if (typeof member === 'function') {
@@ -137,7 +125,7 @@ class RouterProxy {
 	}
 
 	all(...args) {
-		const { pathOptionsList, sequence } = normalizeArgs(args);
+		const { pathOptionsList, sequence } = resolveArgs(args);
 
 		assertMethodSequence(sequence);
 		_(this).method(METHODS.RESTful, pathOptionsList, sequence);
@@ -150,7 +138,7 @@ METHODS['RESTful'].forEach(name => {
 	const lowerCaseName = name.toLowerCase();
 
 	RouterProxy.prototype[lowerCaseName] = function (...args) {
-		const { pathOptionsList, sequence } = normalizeArgs(args);
+		const { pathOptionsList, sequence } = resolveArgs(args);
 
 		assertMethodSequence(sequence);
 		_(this).method([name], pathOptionsList, sequence);
