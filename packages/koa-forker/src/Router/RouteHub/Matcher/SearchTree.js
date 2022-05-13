@@ -1,7 +1,7 @@
 const compose = require('koa-compose');
 
 const Path = require('../path');
-const METHODS = require('../methods');
+const METHODS = require('./methods');
 const Reference = require('../reference');
 
 module.exports = function createPathSearchTree(rootDefinitionNode, options) {

@@ -36,8 +36,8 @@ module.exports = function normalizeRouteMiddleware(_options = {}) {
 		onNotImplemented: _onNotImplemented = options.onNotImplemented
 	} = _options;
 
-	assertStatusCodeOptions(_onMethodNotAllowed);
-	assertStatusCodeOptions(_onNotImplemented);
+	assertStatusCodeOptions(_onMethodNotAllowed, 'onMethodNotAllowed');
+	assertStatusCodeOptions(_onNotImplemented, 'onNotImplemented');
 
 	if (typeof _onMethodNotAllowed === 'boolean') {
 		options.onMethodNotAllowed = _onMethodNotAllowed

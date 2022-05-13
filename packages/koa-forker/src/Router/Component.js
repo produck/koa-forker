@@ -1,19 +1,20 @@
-const Path = require('./path');
+const Path = require('./RouteHub/path');
 
-class Component {
-	constructor({ sequence, pathOptions = null }) {
+class UseComponent {
+	constructor({ sequence, pathOptions }) {
 		this.name = pathOptions.name;
 		this.passageList = Path.PassageList(pathOptions.path);
 		this.sequence = sequence;
 	}
 }
 
-exports.Use = class UseComponent extends Component {};
-
-exports.Method = class MethodComponent extends Component {
+class MethodComponent extends UseComponent {
 	constructor({ sequence, pathOptions, methods }) {
 		super({ sequence, pathOptions });
 
 		this.methods = methods;
 	}
-};
+}
+
+exports.Use = UseComponent;
+exports.Method = MethodComponent;

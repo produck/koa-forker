@@ -1,7 +1,7 @@
 const Proxy = require('./Proxy');
 
 exports.Reference = require('./Reference');
-exports.Method = require('./methods');
+exports.Method = require('./Search/methods');
 exports.Normalize = require('./normalize');
 
 exports.compile = function createRouteHunProxy(router) {
