@@ -1,7 +1,7 @@
 const assert = require('assert');
 const { describe, it } = require('mocha');
 
-const normalizePath = require('../../src/Router/Normalizer/path');
+const normalizePath = require('../../../src/Router/Normalizer/path');
 
 describe('Router::Normalizer::Path()', function () {
 	it('should be [] in default.', function () {
@@ -54,6 +54,14 @@ describe('Router::Normalizer::Path()', function () {
 		]);
 	});
 
+	it('should be an array from { name: \'foo\' }.', function () {
+		const path = normalizePath({ name: 'foo' });
+
+		assert.deepStrictEqual(path, [
+			{ name: 'foo', path: '' },
+		]);
+	});
+
 	it('should be an array from [\'c\', { name: \'foo\', path: \'a\' }].', function () {
 		const path = normalizePath(['c', { name: 'foo', path: 'a' }]);
 
@@ -72,6 +80,24 @@ describe('Router::Normalizer::Path()', function () {
 	it('should throw if path is invalid', function () {
 		assert.throws(() => {
 			normalizePath({ name: null, path: null });
+		});
+	});
+
+	it('should throw if pathList[0] is invalid', function () {
+		assert.throws(() => {
+			normalizePath([0]);
+		}, {
+			name: 'TypeError',
+			message: 'Invalid pathList[0], object, string expected.'
+		});
+	});
+
+	it('should throw if a wrong type options.', function () {
+		assert.throws(() => {
+			normalizePath(0);
+		}, {
+			name: 'TypeError',
+			message: 'Invalid path, object, string, (object|string)[] expected.'
 		});
 	});
 });

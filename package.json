@@ -3,7 +3,9 @@
 	"description": "A new koa router",
 	"scripts": {
 		"deps:install": "npm install && lerna bootstrap",
-		"deps:clean": "lerna clean -y"
+		"deps:clean": "lerna clean -y",
+		"test": "lerna run test",
+		"coverage": "nyc --reporter=lcov npm test"
 	},
 	"repository": {
 		"type": "git",
@@ -21,6 +23,7 @@
 	"homepage": "https://github.com/produck/koa-forker#readme",
 	"devDependencies": {
 		"eslint": "^8.15.0",
-		"lerna": "^4.0.0"
+		"lerna": "^4.0.0",
+		"nyc": "^15.1.0"
 	}
 }

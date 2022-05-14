@@ -15,6 +15,11 @@
 	"publishConfig": {
 		"access": "public"
 	},
+	"files": [
+		"/src",
+		"/types",
+		"/index.js"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/produck/koa-forker.git"
