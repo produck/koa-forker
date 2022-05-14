@@ -16,21 +16,21 @@ function findOrCreatePassageNode(passage, parent) {
 	return newNode;
 }
 
-const BuildingBySequenceNode = {
+const BuildBySequenceNode = {
 	MethodNode: (node, current) => {
 		current.methods[node.method] = Node.Method();
 	},
 	PassageNode: (node, current) => {
 		const child = findOrCreatePassageNode(node.passage, current);
 
-		buildPathDefinitionTreeNode(node, child);
+		buildDefinitionTree(node, child);
 	},
 	MiddlewareNode: () => {}
 };
 
-function buildPathDefinitionTreeNode(currentPassageNode, current) {
+function buildDefinitionTree(currentPassageNode, current) {
 	for (const node of currentPassageNode.childNodeList) {
-		BuildingBySequenceNode[node.constructor.name](node, current);
+		BuildBySequenceNode[node.constructor.name](node, current);
 	}
 }
 
@@ -60,7 +60,7 @@ function markPassageFirstMethod(node) {
 	})(node);
 }
 
-const LoadingBySequenceNode = {
+const LoadBySequenceNode = {
 	MethodNode: (node, current) => {
 		const method = current.methods[node.method];
 
@@ -72,7 +72,7 @@ const LoadingBySequenceNode = {
 		const child = current.childList
 			.find(child => child.passage === node.passage);
 
-		loadPathDefinitionTreeNode(node, child);
+		loadDefinitionTree(node, child);
 	},
 	MiddlewareNode: (node, current) => {
 		loadMiddlewaresFromNode(current, node.middlewares);
@@ -81,7 +81,7 @@ const LoadingBySequenceNode = {
 
 const indexMarkedPassageNodeSet = new WeakSet();
 
-function loadPathDefinitionTreeNode(currentPassageNode, current) {
+function loadDefinitionTree(currentPassageNode, current) {
 	Object.assign(current.pathNames, currentPassageNode.pathNames);
 
 	if (!indexMarkedPassageNodeSet.has(current)) {
@@ -90,17 +90,17 @@ function loadPathDefinitionTreeNode(currentPassageNode, current) {
 	}
 
 	for (const node of currentPassageNode.childNodeList) {
-		LoadingBySequenceNode[node.constructor.name](node, current);
+		LoadBySequenceNode[node.constructor.name](node, current);
 	}
 }
 
-function DefinitionTree(passageSequenceTree) {
+function create(passageSequenceTree) {
 	const root = Node.Passage(passageSequenceTree.passage);
 
-	buildPathDefinitionTreeNode(passageSequenceTree, root);
-	loadPathDefinitionTreeNode(passageSequenceTree, root);
+	buildDefinitionTree(passageSequenceTree, root);
+	loadDefinitionTree(passageSequenceTree, root);
 
 	return root;
 }
 
-exports.create = DefinitionTree;
+exports.create = create;

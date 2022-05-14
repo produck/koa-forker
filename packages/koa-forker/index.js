@@ -1,1 +1,1 @@
-exports.Router = require('./src/Proxy');
+exports.Router = require('./src/Router/Proxy');

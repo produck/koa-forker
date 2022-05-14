@@ -22,41 +22,12 @@ module.exports = class RouteHub {
 	Middleware(options) {
 		const finalName = `${this.router.name}RouteMiddleware`;
 		const route = this;
-
-		const root = {
-			childList: [Compiler.Matcher.create(this.definition, options)]
-		};
-
-		function find(passageValueList) {
-			const length = passageValueList.length;
-
-			let current = root;
-
-			for (let index = 0; index < length; index++) {
-				const passageValue = passageValueList[index];
-				const self = current;
-
-				for (const child of current.childList) {
-					if (child.test(passageValue)) {
-						current = child;
-
-						break;
-					}
-				}
-
-				if (self === current) {
-					// No matched path.
-					return null;
-				}
-			}
-
-			return current;
-		}
+		const matcher = new Compiler.Matcher(this.definition, options);
 
 		const middleware = {
 			[finalName](ctx, next) {
 				const passageValueList = ctx.path.replace(TAIL, '').split(SEPARATOR);
-				const destination = find(passageValueList);
+				const destination = matcher.find(passageValueList);
 
 				if (destination === null) {
 					return next();

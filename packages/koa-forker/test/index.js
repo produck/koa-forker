@@ -41,11 +41,11 @@ childRouter
 
 router.Middleware();
 
-const route = router.Route();
+// const route = router.Route();
 
-console.log(route);
+// console.log(route);
 
 // const url = route.url('501', { id: '1', id2: '2' });
-const url = route.url('queryChild');
+// const url = route.url('queryChild');
 
-console.log(url);
+// console.log(url);

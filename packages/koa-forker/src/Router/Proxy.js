@@ -88,7 +88,11 @@ class RouterProxy {
 		});
 	}
 
-	Middleware(options) {
+	Middleware(options = {}) {
+		if (typeof options !== 'object') {
+			throw new TypeError('Invalid options, an object expected.');
+		}
+
 		const finalOptions = RouteHub.Normalizer.Middleware(options);
 
 		return this.RouteHub().Middleware(finalOptions);
