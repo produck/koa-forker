@@ -4,76 +4,80 @@ const Passage = require('./Passage');
 const METHODS = require('./methods');
 const Reference = require('./Reference');
 
-function MatcherTree(rootDefinitionNode, options) {
-	const searchTree = (function PathSearchNode(definitioneNode) {
-		const { passage, childList, depth } = definitioneNode;
+function SearchNode(definitionNode) {
+	const { passage, childList, depth } = definitionNode;
 
-		const searchNode = {
-			test: null,
-			passage,
-			depth,
-			methods: {},
-			allowedMethods: '',
-			childList: childList.map(child => PathSearchNode(child))
+	const searchNode = {
+		test: null,
+		passage,
+		depth,
+		methods: {},
+		allowedMethods: '',
+		childList: childList.map(child => SearchNode(child))
+	};
+
+	for (const name in definitionNode.methods) {
+		const method = definitionNode.methods[name];
+		const sequence = [...method.middlewares];
+		const slotList = [];
+
+		method.passageIndexList.forEach((slotIndex, depth) => {
+			const slot = [];
+
+			sequence.splice(slotIndex + depth, 0, slot);
+			slotList.push(slot);
+		});
+
+		searchNode.methods[name] = {
+			count: method.count,
+			sequence,
+			slotList: slotList,
+			middleware: null
 		};
-
-		for (const name in definitioneNode.methods) {
-			const method = definitioneNode.methods[name];
-			const sequence = [...method.middlewares];
-			const slotList = [];
-
-			method.passageIndexList.forEach((slotIndex, depth) => {
-				const slot = [];
-
-				sequence.splice(slotIndex + depth, 0, slot);
-				slotList.push(slot);
-			});
-
-			searchNode.methods[name] = {
-				count: method.count,
-				sequence,
-				slotList: slotList,
-				middleware: null
-			};
-		}
-
-		return searchNode;
-	})(rootDefinitionNode);
-
-	function insertParamResolverMiddleware(searchNode, targetDepth, middleware) {
-		(function insert(searchNode) {
-			const { methods, childList } = searchNode;
-
-			for (const name in methods) {
-				methods[name].slotList[targetDepth].push(middleware);
-			}
-
-			for (const childSearchNode of childList) {
-				insert(childSearchNode);
-			}
-		})(searchNode);
 	}
 
-	(function loadSearchNodeParamResolver(searchNode) {
-		const { passage, depth, childList } = searchNode;
-		const { test, resolver } = Passage.Executor(passage);
+	return searchNode;
+}
 
-		function resolveParamMiddleware(ctx, next) {
-			const paramStack = Reference.ctxParamStackMap.get(ctx);
+function insertParamResolverMiddleware(searchNode, targetDepth, middleware) {
+	(function insert(searchNode) {
+		const { methods, childList } = searchNode;
 
-			resolver(paramStack[depth], ctx.params);
-
-			return next();
+		for (const name in methods) {
+			methods[name].slotList[targetDepth].push(middleware);
 		}
-
-		insertParamResolverMiddleware(searchNode, depth, resolveParamMiddleware);
 
 		for (const childSearchNode of childList) {
-			loadSearchNodeParamResolver(childSearchNode);
+			insert(childSearchNode);
 		}
+	})(searchNode);
+}
 
-		searchNode.test = test;
-	})(searchTree);
+function loadSearchNodeParamResolver(searchNode) {
+	const { passage, depth, childList } = searchNode;
+	const { test, resolver } = Passage.Executor(passage);
+
+	function resolveParamMiddleware(ctx, next) {
+		const paramStack = Reference.ctxParamStackMap.get(ctx);
+
+		resolver(paramStack[depth], ctx.params);
+
+		return next();
+	}
+
+	insertParamResolverMiddleware(searchNode, depth, resolveParamMiddleware);
+
+	for (const childSearchNode of childList) {
+		loadSearchNodeParamResolver(childSearchNode);
+	}
+
+	searchNode.test = test;
+}
+
+function create(rootDefinitionNode, options) {
+	const searchTree = SearchNode(rootDefinitionNode);
+
+	loadSearchNodeParamResolver(searchTree);
 
 	(function composeSearchTree(searchNode) {
 		const { methods, childList } = searchNode;
@@ -106,4 +110,4 @@ function MatcherTree(rootDefinitionNode, options) {
 	return searchTree;
 }
 
-exports.create = MatcherTree;
+exports.create = create;

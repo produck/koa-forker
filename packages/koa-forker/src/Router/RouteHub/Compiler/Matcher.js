@@ -1,6 +1,6 @@
 const Search = require('./Search');
 
-class Matcher {
+module.exports = class Matcher {
 	constructor(definition, options) {
 		this.root = {
 			childList: [Search.create(definition, options)]
@@ -32,6 +32,4 @@ class Matcher {
 
 		return current;
 	}
-}
-
-module.exports = Matcher;
+};
