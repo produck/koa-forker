@@ -1,16 +1,14 @@
-const { REG } = require('../path');
+const { REG } = require('./Compiler').Path;
 
-const G_EXP_WITH_PARAM = new RegExp(REG.EXP_WITH_PARAM, 'g');
-
-function resolvePassage(passage) {
+function PassageRenderer(passage) {
 	const template = {
 		render: () => '',
 		regexpMap: {}
 	};
 
 	if (REG.EXP_WITH_PARAM.test(passage)) {
-		const paramExpList = passage.match(G_EXP_WITH_PARAM);
-		const pattern = passage.replace(G_EXP_WITH_PARAM, '#');
+		const paramExpList = passage.match(REG.G_EXP_WITH_PARAM);
+		const pattern = passage.replace(REG.G_EXP_WITH_PARAM, '#');
 		const sectionList = pattern.split('#').map(section => () => section);
 
 		paramExpList.forEach((exp, index) => {
@@ -18,7 +16,7 @@ function resolvePassage(passage) {
 
 			const {
 				key: _key,
-				exp: _exp = REG.DEFAULT_PARAM_REG.source
+				exp: _exp = REG.DEFAULT_PARAM.source
 			} = groups;
 
 			sectionList.splice(index + 1, 0, (params) => params[_key]);
@@ -52,7 +50,7 @@ function NamedPathMap(definitionTree) {
 		let current = node;
 
 		while (current !== null) {
-			const { render, regexpMap } = resolvePassage(current.passage);
+			const { render, regexpMap } = PassageRenderer(current.passage);
 
 			passageTemplateList.unshift(render);
 			Object.assign(paramRegexpMap, regexpMap);

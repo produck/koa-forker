@@ -1,5 +1,4 @@
 const Component = require('./Component');
-const Route = require('./RouteHub');
 
 class Router {
 	constructor(options) {
@@ -34,10 +33,6 @@ class Router {
 		}
 
 		this.paramQueueMap[paramName].push(...paramMiddlewareList);
-	}
-
-	Middleware(options) {
-		return Route.compile(this).Middleware(options);
 	}
 }
 

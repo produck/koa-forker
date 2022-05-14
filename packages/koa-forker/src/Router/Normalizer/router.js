@@ -1,6 +1,6 @@
 const DEFAULT_NAME = '<anonymous>';
 
-exports.Router = function normalizeRouterOptions(_options = {}) {
+module.exports = function normalizeRouterOptions(_options = {}) {
 	const options = {
 		name: DEFAULT_NAME,
 		prefix: ''

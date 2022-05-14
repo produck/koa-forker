@@ -1,10 +1,10 @@
 const compose = require('koa-compose');
 
-const Path = require('../path');
+const Passage = require('./Passage');
 const METHODS = require('./methods');
-const Reference = require('../reference');
+const Reference = require('./Reference');
 
-module.exports = function createPathSearchTree(rootDefinitionNode, options) {
+function MatcherTree(rootDefinitionNode, options) {
 	const searchTree = (function PathSearchNode(definitioneNode) {
 		const { passage, childList, depth } = definitioneNode;
 
@@ -56,7 +56,7 @@ module.exports = function createPathSearchTree(rootDefinitionNode, options) {
 
 	(function loadSearchNodeParamResolver(searchNode) {
 		const { passage, depth, childList } = searchNode;
-		const { test, resolver } = Path.compile(passage);
+		const { test, resolver } = Passage.Executor(passage);
 
 		function resolveParamMiddleware(ctx, next) {
 			const paramStack = Reference.ctxParamStackMap.get(ctx);
@@ -104,4 +104,6 @@ module.exports = function createPathSearchTree(rootDefinitionNode, options) {
 	})(searchTree);
 
 	return searchTree;
-};
+}
+
+exports.create = MatcherTree;

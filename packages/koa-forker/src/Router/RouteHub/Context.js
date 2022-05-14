@@ -1,28 +1,22 @@
-const Reference = require('../reference');
-const { REG } = require('../path');
-const Node = require('./NodeTree');
-const PathDefinitionTree = require('./DefinitionTree');
-const PathSearchTree = require('./SearchTree');
-const NamedPathMap = require('./NamedPathMap');
+const Compiler = require('./Compiler');
+const NamedPath = require('./NamedPath');
+
+const TAIL = /\/+$/g;
+const SEPARATOR = Compiler.Path.REG.SEPARATOR;
 
 module.exports = class RouteHub {
 	constructor(router, proxy) {
 		this.$ = proxy;
 
-		const nodeTree = Node.createTree(router);
-		const definitionTree = PathDefinitionTree(nodeTree);
-		const namedPathMap = NamedPathMap(definitionTree);
+		const sequence = Compiler.Sequence.create(router);
+		const definition = Compiler.Definition.create(sequence);
+		const namedPathMap = NamedPath(definition);
 
 		this.router = router;
-		this.definitionTree = definitionTree;
+		this.definition = definition;
 		this.namedPathMap = namedPathMap;
 
 		Object.freeze(this);
-	}
-
-	get abstract() {
-		//TODO return a list
-		return this.pathTree;
 	}
 
 	Middleware(options) {
@@ -30,54 +24,60 @@ module.exports = class RouteHub {
 		const route = this;
 
 		const root = {
-			childList: [PathSearchTree(this.definitionTree, options)]
+			childList: [Compiler.Matcher.create(this.definition, options)]
 		};
 
-		const middleware = {
-			[finalName](ctx, next) {
-				const passageValueList = ctx.path
-					.replace(REG.TAIL_SLASH, '')
-					.split(REG.SEPARATOR);
+		function find(passageValueList) {
+			const length = passageValueList.length;
 
-				const length = passageValueList.length;
+			let current = root;
 
-				let current = root;
+			for (let index = 0; index < length; index++) {
+				const passageValue = passageValueList[index];
+				const self = current;
 
-				for (let index = 0; index < length; index++) {
-					const passageValue = passageValueList[index];
-					const self = current;
+				for (const child of current.childList) {
+					if (child.test(passageValue)) {
+						current = child;
 
-					for (const child of current.childList) {
-						if (child.test(passageValue)) {
-							current = child;
-
-							break;
-						}
-					}
-
-					if (self === current) {
-						// No matched path then passthrough
-						return next();
+						break;
 					}
 				}
 
-				const matchedMethod = current.methods[ctx.method];
+				if (self === current) {
+					// No matched path.
+					return null;
+				}
+			}
+
+			return current;
+		}
+
+		const middleware = {
+			[finalName](ctx, next) {
+				const passageValueList = ctx.path.replace(TAIL, '').split(SEPARATOR);
+				const destination = find(passageValueList);
+
+				if (destination === null) {
+					return next();
+				}
+
+				const matchedMethod = destination.methods[ctx.method];
 
 				if (!matchedMethod) {
-					// There is not any method in the matched path then passthrough.
 					return next();
 				}
 
 				ctx.route = route;
 				ctx.params = {};
-				ctx.allowedMethods = current.allowedMethods;
-				Reference.ctxParamStackMap.set(ctx, passageValueList);
+				ctx.allowedMethods = destination.allowedMethods;
+				Compiler.Reference.ctxParamStackMap.set(ctx, passageValueList);
 
 				return matchedMethod.middleware(ctx, next);
 			}
 		}[finalName];
 
-		Reference.routeMiddlewareSet.add(middleware);
+		Compiler.Reference.routeMiddlewareSet.add(middleware);
 
 		return middleware;
 	}

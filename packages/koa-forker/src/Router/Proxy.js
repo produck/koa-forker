@@ -1,8 +1,6 @@
-const Normalize = require('./normalize');
-const METHODS = require('./methods');
+const Normalizer = require('./Normalizer');
+const RouteHub = require('./RouteHub');
 const RouterContext = require('./Context');
-const Reference = require('./reference');
-const Route = require('./Route');
 
 const ref = new WeakMap();
 const _ = proxy => ref.get(proxy);
@@ -14,11 +12,11 @@ function isLikePathOptions(any) {
 function resolveArgs(args) {
 	const path = isLikePathOptions(args[0]) ? args.shift() : '';
 
-	return { pathOptionsList: Normalize.Path(path), sequence: args };
+	return { pathOptionsList: Normalizer.Path(path), sequence: args };
 }
 
 function assertNotRouteHubMiddleware(middleware, index) {
-	if (Reference.routeMiddlewareSet.has(middleware)) {
+	if (RouteHub.Reference.routeMiddlewareSet.has(middleware)) {
 		throw new TypeError(`The sequence[${index}] COULD NOT be a Route Middleware.`);
 	}
 }
@@ -37,7 +35,7 @@ function assertMethodSequence(sequence) {
 
 class RouterProxy {
 	constructor(options) {
-		const finalOptions = Normalize.Router(options);
+		const finalOptions = Normalizer.Router(options);
 
 		ref.set(this, new RouterContext(finalOptions));
 	}
@@ -54,8 +52,8 @@ class RouterProxy {
 		_(this).prefix = value;
 	}
 
-	Route() {
-		return Route.compile(_(this));
+	RouteHub() {
+		return RouteHub.create(_(this));
 	}
 
 	param(param, paramMiddleware) {
@@ -79,7 +77,7 @@ class RouterProxy {
 			throw new TypeError('Invalid path name, a string expected.');
 		}
 
-		const finalOptions = Normalize.Redirect(options);
+		const finalOptions = Normalizer.Redirect(options);
 
 		return this.all(pathOptionsList, function redirectMiddleware(ctx) {
 			const { queryString } = ctx;
@@ -91,9 +89,9 @@ class RouterProxy {
 	}
 
 	Middleware(options) {
-		const finalOptions = Normalize.Middleware(options);
+		const finalOptions = RouteHub.Normalizer.Middleware(options);
 
-		return _(this).Middleware(finalOptions);
+		return this.RouteHub().Middleware(finalOptions);
 	}
 
 	use(...args) {
@@ -128,13 +126,13 @@ class RouterProxy {
 		const { pathOptionsList, sequence } = resolveArgs(args);
 
 		assertMethodSequence(sequence);
-		_(this).method(METHODS.RESTful, pathOptionsList, sequence);
+		_(this).method(RouteHub.METHODS.RESTful, pathOptionsList, sequence);
 
 		return this;
 	}
 }
 
-METHODS['RESTful'].forEach(name => {
+RouteHub.METHODS.RESTful.forEach(name => {
 	const lowerCaseName = name.toLowerCase();
 
 	RouterProxy.prototype[lowerCaseName] = function (...args) {
