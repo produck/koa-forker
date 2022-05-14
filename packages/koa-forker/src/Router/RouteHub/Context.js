@@ -20,9 +20,9 @@ module.exports = class RouteHub {
 	}
 
 	Middleware(options) {
-		const finalName = `${this.router.name}RouteMiddleware`;
-		const route = this;
-		const matcher = new Compiler.Matcher(this.definition, options);
+		const route = this, finalName = `${this.router.name}RouteMiddleware`;
+		const searchTree = Compiler.Search.create(this.definition, options);
+		const matcher = new Compiler.Matcher(searchTree);
 
 		const middleware = {
 			[finalName](ctx, next) {

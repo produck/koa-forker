@@ -2,7 +2,7 @@
 	"name": "@produck/koa-forker",
 	"description": "A new koa router",
 	"scripts": {
-		"deps:install": "lerna bootstrap",
+		"deps:install": "npm install && lerna bootstrap",
 		"deps:clean": "lerna clean -y"
 	},
 	"repository": {

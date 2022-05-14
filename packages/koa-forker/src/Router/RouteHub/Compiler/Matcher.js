@@ -1,9 +1,7 @@
-const Search = require('./Search');
-
 module.exports = class Matcher {
-	constructor(definition, options) {
+	constructor(searchTree) {
 		this.root = {
-			childList: [Search.create(definition, options)]
+			childList: [searchTree]
 		};
 	}
 

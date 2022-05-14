@@ -1,6 +1,6 @@
 const DEFAULT_NAME = '<anonymous>';
 
-module.exports = function normalizeRouterOptions(_options = {}) {
+module.exports = function normalizeRouterOptions(_options) {
 	const options = {
 		name: DEFAULT_NAME,
 		prefix: ''
@@ -12,11 +12,11 @@ module.exports = function normalizeRouterOptions(_options = {}) {
 	} = _options;
 
 	if (typeof _name !== 'string') {
-		throw new TypeError('Invalid .name, a string expected');
+		throw new TypeError('Invalid .name, a string expected.');
 	}
 
 	if (typeof _prefix !== 'string') {
-		throw new TypeError('Invalid .prefix, a string expected');
+		throw new TypeError('Invalid .prefix, a string expected.');
 	}
 
 	options.prefix = _prefix;

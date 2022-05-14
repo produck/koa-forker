@@ -1,8 +1,10 @@
 const Sequence = require('./Sequence');
 const Definition = require('./Definition');
+const Search = require('./Search');
 
 exports.Sequence = Sequence.Tree;
 exports.Definition = Definition.Tree;
+exports.Search = Search;
 exports.Matcher = require('./Matcher');
 
 exports.METHODS = require('./methods');
