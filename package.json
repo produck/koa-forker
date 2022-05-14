@@ -20,7 +20,7 @@
 	},
 	"homepage": "https://github.com/produck/koa-forker#readme",
 	"devDependencies": {
-		"eslint": "^8.14.0",
+		"eslint": "^8.15.0",
 		"lerna": "^4.0.0"
 	}
 }

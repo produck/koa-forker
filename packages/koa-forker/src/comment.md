@@ -27,6 +27,31 @@
 
 # Glossary
 
-* path - a path schema string like '/a'
-* pathOptions - a object with `path` & optional string `name`
-* pathOptionsList - a list of `pathOptions`
+* Path
+	* Path - a path schema string like '/a'
+	* PathOptions - a object with `path` & optional string `name`
+	* PathOptionsList - a list of `pathOptions`
+	* PathValue -
+	* PathExecutor -
+
+* Passage
+	* Passage -
+	* PassageValue -
+	* PassageRenderer -
+
+* Tree
+	* SequenceTree
+		* Member
+		* PassageNode
+		* MiddlewareNode
+		* MethodNode
+	* DefinitionTree
+		* MethodNode
+		* PassageNode
+	* SearchTree
+		* SearchNode
+		* MethodNode
+
+* Matcher
+* RouteHub
+* Router
