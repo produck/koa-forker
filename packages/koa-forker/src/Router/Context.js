@@ -1,6 +1,6 @@
 const Component = require('./Component');
 
-class Router {
+class RouterContext {
 	constructor(options) {
 		const { name, prefix } = options;
 
@@ -8,7 +8,6 @@ class Router {
 		this.prefix = prefix;
 
 		this.componentList = [];
-		this.paramQueueMap = {};
 	}
 
 	use(pathOptionsList, sequence) {
@@ -26,14 +25,6 @@ class Router {
 			this.componentList.push(component);
 		}
 	}
-
-	param(paramName, paramMiddlewareList) {
-		if (!this.paramQueueMap[paramName]) {
-			this.paramQueueMap[paramName] = [];
-		}
-
-		this.paramQueueMap[paramName].push(...paramMiddlewareList);
-	}
 }
 
-module.exports = Router;
+module.exports = RouterContext;

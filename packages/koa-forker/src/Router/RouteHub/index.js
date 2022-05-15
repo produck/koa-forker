@@ -5,7 +5,7 @@ function createRouteHubProxy(router) {
 	return new Proxy(router);
 }
 
-exports.Path = require('./Path');
+exports.Path = Compiler.Path;
 exports.METHODS = Compiler.METHODS;
 exports.Reference = Compiler.Reference;
 exports.Normalizer = require('./Normalizer');

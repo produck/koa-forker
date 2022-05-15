@@ -34,10 +34,18 @@ function assertMethodSequence(sequence) {
 }
 
 class RouterProxy {
-	constructor(options) {
+	constructor(options = {}) {
+		if (typeof options !== 'object') {
+			throw new TypeError('Invalid options, an object expected.');
+		}
+
 		const finalOptions = Normalizer.Router(options);
 
 		ref.set(this, new RouterContext(finalOptions));
+	}
+
+	get name() {
+		return _(this).name;
 	}
 
 	get prefix() {
@@ -56,9 +64,9 @@ class RouterProxy {
 		return RouteHub.create(_(this));
 	}
 
-	param(param, paramMiddleware) {
-		if (typeof param !== 'string') {
-			throw new TypeError('Invalid param, a string expected.');
+	param(name, paramMiddleware) {
+		if (typeof name !== 'string') {
+			throw new TypeError('Invalid name, a string expected.');
 		}
 
 		if (typeof paramMiddleware !== 'function') {
@@ -66,9 +74,9 @@ class RouterProxy {
 		}
 
 		return this.use(function paramMiddleware(ctx, next) {
-			const value = ctx.params[param];
+			const paramValue = ctx.params[name];
 
-			return value ? paramMiddleware(value, ctx, next) : next();
+			return paramValue ? paramMiddleware(paramValue, ctx, next) : next();
 		});
 	}
 

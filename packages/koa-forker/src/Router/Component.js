@@ -3,7 +3,7 @@ const RouteHub = require('./RouteHub');
 class UseComponent {
 	constructor({ sequence, pathOptions }) {
 		this.name = pathOptions.name;
-		this.passageList = RouteHub.Path.PassageList(pathOptions.path);
+		this.passageList = RouteHub.Path.toPassageList(pathOptions.path);
 		this.sequence = sequence;
 	}
 }
