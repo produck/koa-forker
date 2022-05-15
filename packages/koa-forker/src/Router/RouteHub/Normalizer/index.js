@@ -1,2 +1,2 @@
-exports.Middleware = require('./middleware');
+exports.Middleware = require('./middleware').normalize;
 exports.Url = require('./url');

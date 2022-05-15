@@ -5,6 +5,7 @@
 		"deps:install": "npm install && lerna bootstrap",
 		"deps:clean": "lerna clean -y",
 		"test": "lerna run test",
+		"lint": "eslint --fix packages/**/*.js",
 		"coverage": "nyc --reporter=lcov npm test"
 	},
 	"repository": {
