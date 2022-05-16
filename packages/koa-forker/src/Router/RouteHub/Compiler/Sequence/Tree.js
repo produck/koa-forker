@@ -22,15 +22,12 @@ const AppendByComponent = {
 			passageNode.append(currentMiddlewareNode);
 		}
 	},
-	MethodComponent: function (component, passageNode, routerName) {
+	MethodComponent: function (component, passageNode, routerContext) {
 		for (const methodName of component.methods) {
 			const methodNode = new Node.Method(methodName);
 
 			passageNode.append(methodNode);
-
-			if (routerName) {
-				methodNode.routerNames[routerName] = true;
-			}
+			methodNode.routerNames[routerContext.name] = true;
 
 			for (const member of component.sequence) {
 				methodNode.put(member);
@@ -56,23 +53,23 @@ function createPassageNode(passageList, sourcePassageNode, name = null) {
 	return currentPassageNode;
 }
 
-function SequenceTree(router, parentPassageNode) {
-	const prefixPassageList = Path.toPassageList(router.prefix);
+function SequenceTree(routerContext, parentPassageNode) {
+	const prefixPassageList = Path.toPassageList(routerContext.prefix);
 	const routerPassageNode = createPassageNode(prefixPassageList, parentPassageNode);
 
-	for (const component of router.componentList) {
+	for (const component of routerContext.componentList) {
 		const { name, passageList } = component;
 		const passageNode = createPassageNode(passageList, routerPassageNode, name);
 		const type = component.constructor.name;
 
-		AppendByComponent[type](component, passageNode, router.name);
+		AppendByComponent[type](component, passageNode, routerContext);
 	}
 }
 
-function create(router) {
+function create(routerContext) {
 	const root = new Node.Passage('');
 
-	SequenceTree(router, root);
+	SequenceTree(routerContext, root);
 
 	return root;
 }
