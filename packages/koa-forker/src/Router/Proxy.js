@@ -80,16 +80,16 @@ class RouterProxy {
 		});
 	}
 
-	redirect(pathOptionsList, name, options) {
-		if (typeof name !== 'string') {
-			throw new TypeError('Invalid path name, a string expected.');
+	redirect(pathOptionsList, destinationName, options = {}) {
+		if (typeof destinationName !== 'string') {
+			throw new TypeError('Invalid destinationName, a string expected.');
 		}
 
 		const finalOptions = Normalizer.Redirect(options);
 
 		return this.all(pathOptionsList, function redirectMiddleware(ctx) {
 			const { queryString } = ctx;
-			const path = ctx.route.url(name, ctx.param, { queryString });
+			const path = ctx.route.url(destinationName, ctx.param, { queryString });
 
 			ctx.redirect(path);
 			ctx.status = finalOptions.code;
@@ -97,7 +97,7 @@ class RouterProxy {
 	}
 
 	Middleware(options = {}) {
-		if (typeof options !== 'object') {
+		if (options === null || typeof options !== 'object') {
 			throw new TypeError('Invalid options, an object expected.');
 		}
 
@@ -119,15 +119,8 @@ class RouterProxy {
 			assertNotRouteHubMiddleware(middleware, index);
 		}
 
-		const _sequence = sequence.map(member => {
-			if (typeof member === 'function') {
-				return member;
-			}
-
-			if (member instanceof RouterProxy) {
-				return _(member);
-			}
-		});
+		const _sequence = sequence
+			.map(member => member instanceof RouterProxy ? _(member) : member);
 
 		_(this).use(pathOptionsList, _sequence);
 

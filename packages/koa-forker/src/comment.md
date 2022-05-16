@@ -51,7 +51,8 @@
 	* SearchTree
 		* SearchNode
 		* MethodNode
-
 * Matcher
 * RouteHub
 * Router
+* RouterMember
+* RouterMemberSequence
