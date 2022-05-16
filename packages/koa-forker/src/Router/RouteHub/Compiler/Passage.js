@@ -1,13 +1,11 @@
-const EXP_WITH_PARAM = /{(?<key>[a-zA-Z_$][a-zA-Z_$0-9]*)(\((?<exp>.+)\))?}/;
+const EXP_WITH_PARAM = /{(?<key>[a-zA-Z_$][a-zA-Z_$0-9]+)(=(?<exp>[^=]+))?}/;
 const G_EXP_WITH_PARAM = new RegExp(EXP_WITH_PARAM, 'g');
 const DEFAULT_PARAM = /[^/]+/;
-
-const DEFAULT_TEST = () => true;
 const DEFAULT_RESOLVER = () => {};
 
 function PassageExecutor(passage) {
 	const executor = {
-		test: DEFAULT_TEST,
+		test: null,
 		resolver: DEFAULT_RESOLVER
 	};
 
@@ -28,7 +26,7 @@ function PassageExecutor(passage) {
 			} = groups;
 
 			abstract.key = _key;
-			abstract.exp = _exp;
+			abstract.exp = new RegExp(_exp);
 
 			return abstract;
 		});
@@ -45,8 +43,9 @@ function PassageExecutor(passage) {
 
 		executor.test = passageValue => finalRegExp.test(passageValue);
 
-		executor.resolver = (passageValue, params) =>
+		executor.resolver = (passageValue, params) => {
 			Object.assign(params, passageValue.match(finalRegExp).groups);
+		};
 	} else {
 		executor.test = passageValue => passageValue === passage;
 	}
