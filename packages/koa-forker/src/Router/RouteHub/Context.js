@@ -5,14 +5,14 @@ const TAIL = /\/+$/g;
 const SEPARATOR = Compiler.Path.REG.SEPARATOR;
 
 module.exports = class RouteHub {
-	constructor(router, proxy) {
+	constructor(routerContext, proxy) {
 		this.$ = proxy;
 
-		const sequence = Compiler.Sequence.create(router);
+		const sequence = Compiler.Sequence.create(routerContext);
 		const definition = Compiler.Definition.create(sequence);
 		const namedPathMap = NamedPath(definition);
 
-		this.router = router;
+		this.router = routerContext;
 		this.definition = definition;
 		this.namedPathMap = namedPathMap;
 
@@ -53,20 +53,16 @@ module.exports = class RouteHub {
 		return middleware;
 	}
 
-	url(name, params, options) {
+	url(name, params) {
 		const namedPath = this.namedPathMap[name];
 
-		if (!namedPath) {
-			return null;
-		}
-
-		//TODO paramsMapper
+		//TODO paramsMapper & options
 		namedPath.assert(params);
 
 		const pathValue = namedPath.render(params);
 		const url = new URL(pathValue, 'http://e');
 
-		url.search = options.queryString;
+		// url.search = options.queryString;
 
 		return `${url.pathname}${url.search}`;
 	}

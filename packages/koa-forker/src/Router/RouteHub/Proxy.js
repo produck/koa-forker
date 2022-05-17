@@ -6,8 +6,8 @@ const map = new WeakMap();
 const _ = proxy => map.get(proxy);
 
 class RouteHubProxy {
-	constructor(router) {
-		map.set(this, new RouteHubContext(router, this));
+	constructor(routerContext) {
+		map.set(this, new RouteHubContext(routerContext, this));
 	}
 
 	get abstract() {
@@ -15,28 +15,32 @@ class RouteHubProxy {
 	}
 
 	has(name) {
-		if (typeof name === 'string') {
+		if (typeof name !== 'string') {
 			throw new TypeError('Invalid name, a string expected.');
 		}
 
 		return name in _(this).namedPathMap;
 	}
 
-	url(name, params = {}, options = {}) {
+	url(name, params = {}) {
 		if (!this.has(name)) {
-			throw new Error(`A path named ${name} is NOT existed.`);
+			throw new Error(`A path named "${name}" is NOT existed.`);
 		}
 
-		if (typeof params !== 'object') {
+		if (params === null || typeof params !== 'object') {
 			throw new TypeError('Invalid params, an object expected.');
 		}
 
-		const finalOptions = Normalizer.Url(options);
+		// const finalOptions = Normalizer.Url(options);
 
-		return _(this).url(name, params, finalOptions);
+		return _(this).url(name, params);
 	}
 
 	Middleware(options = {}) {
+		if (options === null || typeof options !== 'object') {
+			throw new TypeError('Invalid options, an object expected.');
+		}
+
 		const finalOptions = Normalizer.Middleware(options);
 
 		return _(this).Middleware(finalOptions);
