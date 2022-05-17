@@ -2,7 +2,7 @@ const { REG } = require('./Compiler').Path;
 
 function PassageRenderer(passage) {
 	const template = {
-		render: () => '',
+		render: null,
 		regexpMap: {}
 	};
 
@@ -64,8 +64,9 @@ function NamedPathMap(definitionTree) {
 		function assert(params) {
 			for (const key in paramRegexpMap) {
 				const regexp = paramRegexpMap[key];
+				const value = params[key];
 
-				if (!regexp.test(params[key])) {
+				if (value === undefined || !regexp.test(params[key])) {
 					throw new Error(
 						`Invalid params.${key} value, a string matched ${regexp} expected`
 					);
