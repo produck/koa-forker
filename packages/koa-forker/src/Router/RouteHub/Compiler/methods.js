@@ -1,7 +1,7 @@
 module.exports = {
 	RESTful: [
-		'HEAD', 'OPTIONS',
-		'GET', 'PUT', 'PATCH', 'POST', 'DELETE'
+		'GET', 'POST', 'PUT', 'DELETE', 'PATCH',
+		'HEAD', 'OPTIONS'
 	],
 	WebDAV: [
 

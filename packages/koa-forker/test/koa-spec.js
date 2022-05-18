@@ -1,4 +1,3 @@
-const assert = require('assert');
 const { describe, it } = require('mocha');
 const Koa = require('koa');
 const request = require('supertest');
@@ -9,12 +8,8 @@ describe('A sample application.', function () {
 	const root = new Forker.Router({ name: 'Root', prefix: 'api' });
 	const user = new Forker.Router({ name: 'User', prefix: 'user' });
 
-	let currentCtx = null;
-
 	root
 		.use(function validateAuthenticate(ctx, next) {
-			currentCtx = ctx;
-
 			return next();
 		})
 		.use('/user', function isAdministrator(ctx, next) {
@@ -25,10 +20,10 @@ describe('A sample application.', function () {
 		.use(user);
 
 	user
-		.get({ name: 'User', path: '' }, function queryAllUserList(ctx) {
+		.get({ name: 'User' }, function queryAllUserList(ctx) {
 			ctx.body = 'UserList';
 		})
-		.post('') //501
+		.post() //501
 		.param('notExisted', function preHandleId(value, ctx, next) {
 			ctx.state.id = value;
 
@@ -39,11 +34,12 @@ describe('A sample application.', function () {
 
 			return next();
 		})
+		.put('{id}')
 		.get({ name: 'getUser', path: '{id}' }, function getUser(ctx) {
 			ctx.body = `User: ${ctx.params.id}`;
 		});
 
-	describe('405, 501 Middlewares', function () {
+	describe('Default Middlewares', function () {
 		const app = new Koa();
 		let server = null;
 
@@ -53,19 +49,6 @@ describe('A sample application.', function () {
 
 		it('should be a good work to GET /api/user/1 200 OK.', function (done) {
 			request(server).get('/api/user/1').expect(200, 'User: 1', done);
-		});
-
-		it('should be 405 POST /api/user/1', function (done) {
-			request(server)
-				.delete('/api/user/1')
-				.expect('Allow', 'GET')
-				.expect(405, done);
-		});
-
-		it('should be 501 POST /api/user', function (done) {
-			request(server)
-				.post('/api/user')
-				.expect(501, done);
 		});
 
 		it('should be 301 from /account to /user.', function (done) {
@@ -85,6 +68,19 @@ describe('A sample application.', function () {
 			request(server)
 				.get('/api')
 				.expect(404, done);
+		});
+
+		it('should be 405 POST /api/user/1', function (done) {
+			request(server)
+				.delete('/api/user/1')
+				.expect('Allow', 'GET, PUT')
+				.expect(405, done);
+		});
+
+		it('should be 501 POST /api/user', function (done) {
+			request(server)
+				.post('/api/user')
+				.expect(501, done);
 		});
 
 		this.afterAll(() => server.close());

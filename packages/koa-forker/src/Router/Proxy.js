@@ -6,11 +6,19 @@ const ref = new WeakMap();
 const _ = proxy => ref.get(proxy);
 
 function isLikePathOptions(any) {
-	return !(typeof any === 'function' || any instanceof RouterProxy);
+	if (typeof any === 'function') {
+		return false;
+	}
+
+	if (any instanceof RouterProxy) {
+		return false;
+	}
+
+	return true;
 }
 
 function resolveArgs(args) {
-	const path = isLikePathOptions(args[0]) ? args.shift() : '';
+	const path = args.length > 0 && isLikePathOptions(args[0]) ? args.shift() : '';
 
 	return { pathOptionsList: Normalizer.Path(path), sequence: args };
 }

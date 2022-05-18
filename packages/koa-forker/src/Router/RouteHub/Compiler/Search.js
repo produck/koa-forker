@@ -67,10 +67,10 @@ function create(rootDefinitionNode, options) {
 				: options.onNotImplemented;
 		}
 
-		const allowedMethodList = Object.keys(methods);
+		const allowedMethodList = METHODS.RESTful.filter(name => name in methods);
 
 		if (allowedMethodList.length > 0) {
-			searchNode.allowedMethods = Object.keys(methods).join(', ');
+			searchNode.allowedMethods = allowedMethodList.join(', ');
 
 			for (const name of METHODS.RESTful.filter(name => !methods[name])) {
 				methods[name] = {
