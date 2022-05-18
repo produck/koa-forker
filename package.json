@@ -6,7 +6,8 @@
 		"deps:clean": "lerna clean -y",
 		"test": "lerna run test",
 		"lint": "eslint --fix packages/**/*.js",
-		"coverage": "nyc --reporter=lcov npm test"
+		"coverage": "nyc --reporter=lcov npm test",
+		"coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
 	},
 	"repository": {
 		"type": "git",
@@ -23,6 +24,7 @@
 	},
 	"homepage": "https://github.com/produck/koa-forker#readme",
 	"devDependencies": {
+		"coveralls": "^3.1.1",
 		"eslint": "^8.15.0",
 		"lerna": "^4.0.0",
 		"nyc": "^15.1.0"
