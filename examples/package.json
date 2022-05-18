@@ -1,6 +1,6 @@
 {
 	"name": "examples",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "> TODO: description",
 	"author": "Chaos Lee <chaos2lee@qq.com>",
 	"homepage": "https://github.com/produck/koa-forker/tree/main/packages/examples#readme",
@@ -17,6 +17,6 @@
 	"devDependencies": {
 		"@koa/router": "^10.1.1",
 		"koa": "^2.13.4",
-		"koa-forker": "^0.1.0"
+		"koa-forker": "^0.1.1"
 	}
 }
