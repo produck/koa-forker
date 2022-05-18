@@ -6,7 +6,7 @@ const Definition =	require('../../../../src/Router/RouteHub/Compiler/Definition'
 const Search = require('../../../../src/Router/RouteHub/Compiler/Search');
 const Matcher =	require('../../../../src/Router/RouteHub/Compiler/Matcher');
 
-describe('Router::RouteHub::Compiler::Passage::Matcher()', function () {
+describe('Router::RouteHub::Compiler::Passage::Matcher::', function () {
 	function foo() {}
 	function bar() {}
 	function qux() {}
@@ -100,7 +100,8 @@ describe('Router::RouteHub::Compiler::Passage::Matcher()', function () {
 				depth: 0,
 				methods: {},
 				passage: '',
-				test: search.test
+				test: search.test,
+				resolve: search.resolve
 			});
 		});
 
@@ -113,7 +114,8 @@ describe('Router::RouteHub::Compiler::Passage::Matcher()', function () {
 				depth: 1,
 				methods: search.childList[0].methods,
 				passage: 'api',
-				test: search.childList[0].test
+				test: search.childList[0].test,
+				resolve: search.childList[0].resolve
 			});
 		});
 

@@ -6,7 +6,7 @@ function DEFAULT_METHOD_NOT_ALLOWED(ctx) {
 }
 
 function DEFAULT_NOT_IMPLEMENTED(ctx) {
-	ctx.throw(501);
+	ctx.status = 501;
 }
 
 function DEFAULT_PASSTHROUGH(_ctx, next) {

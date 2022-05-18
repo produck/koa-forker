@@ -73,7 +73,7 @@ class RouterProxy {
 			throw new TypeError('Invalid paramMiddleware, a function expected.');
 		}
 
-		return this.use(function paramMiddleware(ctx, next) {
+		return this.use(function paramMiddlewareProxy(ctx, next) {
 			const paramValue = ctx.params[name];
 
 			return paramValue ? paramMiddleware(paramValue, ctx, next) : next();

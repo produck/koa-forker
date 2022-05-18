@@ -26,8 +26,9 @@ module.exports = class RouteHub {
 
 		const middleware = {
 			[finalName](ctx, next) {
+				const params = {};
 				const passageValueList = ctx.path.replace(TAIL, '').split(SEPARATOR);
-				const destination = matcher.find(passageValueList);
+				const destination = matcher.find(passageValueList, params);
 
 				if (destination === null) {
 					return next();
@@ -40,9 +41,8 @@ module.exports = class RouteHub {
 				}
 
 				ctx.route = route;
-				ctx.params = {};
+				ctx.params = params;
 				ctx.allowedMethods = destination.allowedMethods;
-				Compiler.Reference.ctxParamStackMap.set(ctx, passageValueList);
 
 				return matchedMethod.middleware(ctx, next);
 			}

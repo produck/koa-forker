@@ -5,7 +5,7 @@ module.exports = class Matcher {
 		};
 	}
 
-	find(passageValueList) {
+	find(passageValueList, params) {
 		const length = passageValueList.length;
 
 		let current = this.root;
@@ -17,6 +17,7 @@ module.exports = class Matcher {
 			for (const child of current.childList) {
 				if (child.test(passageValue)) {
 					current = child;
+					child.resolve(passageValue, params);
 
 					break;
 				}

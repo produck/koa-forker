@@ -2,13 +2,13 @@ const compose = require('koa-compose');
 
 const Passage = require('./Passage');
 const METHODS = require('./methods');
-const Reference = require('./Reference');
 
 function SearchNode(definitionNode) {
 	const { passage, childList, depth } = definitionNode;
 
 	const searchNode = {
 		test: null,
+		resolve: null,
 		passage,
 		depth,
 		methods: {},
@@ -39,39 +39,16 @@ function SearchNode(definitionNode) {
 	return searchNode;
 }
 
-function insertParamResolverMiddleware(searchNode, targetDepth, middleware) {
-	(function insert(searchNode) {
-		const { methods, childList } = searchNode;
-
-		for (const name in methods) {
-			methods[name].slotList[targetDepth].push(middleware);
-		}
-
-		for (const childSearchNode of childList) {
-			insert(childSearchNode);
-		}
-	})(searchNode);
-}
-
 function loadSearchNodeParamResolver(searchNode) {
-	const { passage, depth, childList } = searchNode;
+	const { passage, childList } = searchNode;
 	const { test, resolver } = Passage.Executor(passage);
-
-	function resolveParamMiddleware(ctx, next) {
-		const paramStack = Reference.ctxParamStackMap.get(ctx);
-
-		resolver(paramStack[depth], ctx.params);
-
-		return next();
-	}
-
-	insertParamResolverMiddleware(searchNode, depth, resolveParamMiddleware);
 
 	for (const childSearchNode of childList) {
 		loadSearchNodeParamResolver(childSearchNode);
 	}
 
 	searchNode.test = test;
+	searchNode.resolve = resolver;
 }
 
 function create(rootDefinitionNode, options) {

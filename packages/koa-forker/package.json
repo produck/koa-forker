@@ -32,7 +32,8 @@
 	},
 	"devDependencies": {
 		"koa": "^2.13.4",
-		"mocha": "^10.0.0"
+		"mocha": "^10.0.0",
+		"supertest": "^6.2.3"
 	},
 	"dependencies": {
 		"koa-compose": "^4.1.0"

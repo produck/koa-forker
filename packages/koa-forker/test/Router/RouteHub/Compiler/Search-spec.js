@@ -52,7 +52,8 @@ describe('Router::RouteHub::Compiler::Search::', function () {
 				depth: 0,
 				methods: {},
 				passage: '',
-				test: search.test
+				test: search.test,
+				resolve: search.resolve
 			});
 		});
 
@@ -80,19 +81,22 @@ describe('Router::RouteHub::Compiler::Search::', function () {
 								depth: 2,
 								methods: {},
 								passage: 'bar',
-								test: search.childList[0].childList[0].test
+								test: search.childList[0].childList[0].test,
+								resolve: search.childList[0].childList[0].resolve
 							}
 						],
 						depth: 1,
 						methods: Object.assign({}, search.childList[0].methods),
 						passage: 'api',
-						test: search.childList[0].test
+						test: search.childList[0].test,
+						resolve: search.childList[0].resolve
 					}
 				],
 				depth: 0,
 				methods: {},
 				passage: '',
-				test: search.test
+				test: search.test,
+				resolve: search.resolve
 			});
 		});
 	});

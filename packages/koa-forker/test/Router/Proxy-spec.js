@@ -130,7 +130,7 @@ describe('Router::Proxy', function () {
 			});
 		});
 
-		it('should throws if no pathOptionsList.', function () {
+		it('should throws if invalid destinationName.', function () {
 			assert.throws(() => {
 				new RouterProxy().redirect('abc', 0);
 			}, {
