@@ -6,8 +6,7 @@
 		"deps:clean": "lerna clean -y",
 		"test": "lerna run test",
 		"lint": "eslint --fix packages/**/*.js",
-		"coverage": "nyc --reporter=lcov npm test",
-		"coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
+		"coverage": "nyc --reporter=lcov npm test"
 	},
 	"repository": {
 		"type": "git",
