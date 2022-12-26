@@ -11,6 +11,8 @@ class RouteHubProxy {
 	}
 
 	get abstract() {
+		// TODO for docs.
+
 		return Abstract(_(this));
 	}
 

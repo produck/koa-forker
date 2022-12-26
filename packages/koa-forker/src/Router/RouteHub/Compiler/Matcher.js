@@ -6,12 +6,9 @@ module.exports = class Matcher {
 	}
 
 	find(passageValueList, params) {
-		const length = passageValueList.length;
-
 		let current = this.root;
 
-		for (let index = 0; index < length; index++) {
-			const passageValue = passageValueList[index];
+		for (const passageValue of passageValueList) {
 			const self = current;
 
 			for (const child of current.childList) {

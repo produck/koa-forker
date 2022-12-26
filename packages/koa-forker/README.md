@@ -23,3 +23,6 @@ More than koa-router
 ### Router.all()
 
 ## Some opinions
+
+* Router - The designer.
+* RouterHub - An artifact to `Router`.
